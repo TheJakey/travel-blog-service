@@ -11,7 +11,6 @@ import java.io.Serializable;
 public class Greeting implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(columnDefinition = "serial")
     private long id;
 
     @Column(name = "content")
