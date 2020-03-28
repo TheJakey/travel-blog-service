@@ -6,12 +6,11 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "greetings2")
+@Table(name = "greetings")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Greeting implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(columnDefinition = "serial")
     private long id;
 
     @Column(name = "content")
