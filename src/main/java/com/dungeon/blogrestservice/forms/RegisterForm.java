@@ -2,7 +2,7 @@ package com.dungeon.blogrestservice.forms;
 
 public class RegisterForm {
     private String username;
-    private String aboutMe;
+    private String about_me;
     private String email;
     private String password;
 
@@ -12,14 +12,6 @@ public class RegisterForm {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getAboutMe() {
-        return aboutMe;
-    }
-
-    public void setAboutMe(String aboutMe) {
-        this.aboutMe = aboutMe;
     }
 
     public String getEmail() {
@@ -36,5 +28,13 @@ public class RegisterForm {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getAbout_me() {
+        return about_me;
+    }
+
+    public void setAbout_me(String about_me) {
+        this.about_me = about_me;
     }
 }
