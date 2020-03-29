@@ -42,6 +42,8 @@ public class Blogger implements Serializable {
         this.profilePhoto = profilePhoto;
     }
 
+    public long getId() {return id;}
+
     public String getUsername() {
         return username;
     }
