@@ -56,6 +56,30 @@ public class BloggerController {
         return ResponseEntity.status(201).body("");
     }
 
+    @RequestMapping(value = MAPPING_VALUE + "/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity deleteBlogger(@PathVariable long id, @RequestHeader(value = "token") String requestToken) {
+        Blogger blogger;
+        Optional<Session> session_in_repo = sessionRepository.findByBloggerId(id);
+        Session session;
+
+        // check if blogger, whose photo is requested to change is logged-in
+        if (session_in_repo.isPresent())
+            session = session_in_repo.get();
+        else
+            return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
+
+        // verify if token for provided bloggerId matches to requestToken from header
+        if (session.getToken().compareTo(requestToken) != 0)
+            return ResponseEntity.status(403).body("You are forbidden to delete this user");
+
+        blogger = repository.findById(id).get();
+
+        sessionRepository.delete(session);
+        repository.delete(blogger);
+
+        return ResponseEntity.status(200).body("");
+    }
+
     @RequestMapping(value = MAPPING_VALUE + "/photos", method = RequestMethod.POST)
     public ResponseEntity uploadNewPhoto(
             @RequestParam(value = "bloggerId") long bloggerId,
@@ -139,7 +163,7 @@ public class BloggerController {
     }
 
     @RequestMapping(value = MAPPING_VALUE + "/photos", method = RequestMethod.GET)
-    public ResponseEntity getBloggerImage(
+    public ResponseEntity getBloggerPhoto(
             @RequestParam(value = "bloggerId") long bloggerId,
             @RequestParam(value = "type") String type
     ) {
@@ -168,7 +192,7 @@ public class BloggerController {
     public ResponseEntity<String> deletePhoto(
             @RequestParam(value = "bloggerId") long bloggerId,
             @RequestParam(value = "type") String type,
-            @RequestHeader(value = "token") String requestToken
+            @RequestHeader(value = "token") String requestToken                 // TODO: FIX token to Token with VIKI !!
     ) {
         Blogger blogger;
         Optional<Session> session_in_repo = sessionRepository.findByBloggerId(bloggerId);
