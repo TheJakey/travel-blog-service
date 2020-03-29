@@ -7,8 +7,7 @@ import com.dungeon.blogrestservice.repositories.BloggerRepository;
 import com.dungeon.blogrestservice.repositories.GreetingRepository;
 import com.dungeon.blogrestservice.repositories.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -16,6 +15,7 @@ import java.util.Optional;
 @RestController
 public class BloggerController {
     private final static String MAPPING_VALUE = "/bloggers";
+    private final static String CONTENT_TYPE_JPEG = "image/jpeg";
 
     @Autowired
     BloggerRepository repository;
@@ -62,6 +62,7 @@ public class BloggerController {
             @RequestParam(value = "bloggerId") long bloggerId,
             @RequestParam(value = "type") String type,
             @RequestHeader(value = "token") String requestToken,                // TODO: FIX token to Token with VIKI !!
+            @RequestHeader(value = "Content-Type") String contentType,
             @RequestBody byte[] photo
     ) {
         Blogger blogger;
@@ -78,20 +79,36 @@ public class BloggerController {
         if (session.getToken().compareTo(requestToken) != 0)
             return ResponseEntity.status(403).body("You are forbidden to change this photo");
 
+        // accept only jpeg\
+        if (contentType.compareTo(CONTENT_TYPE_JPEG) != 0)
+            return ResponseEntity.status(400).body("Only JPEG is accepted");
+
         // blogger is logged in, so blogger MUST exists in bloggers table.. so .get() right away
         blogger = repository.findById(bloggerId).get();
         blogger.setProfilePhoto(photo);
 
         repository.save(blogger);
 
-        return ResponseEntity.status(200).body("");
+        return ResponseEntity.status(201).body("");
     }
 
     @RequestMapping(MAPPING_VALUE + "/photos")
-    public ResponseEntity getBloggerImage() {
-        long id = 4;
-        Blogger blogger = repository.findById(id).get();
+    public ResponseEntity getBloggerImage(
+            @RequestParam(value = "bloggerId") long bloggerId,
+            @RequestParam(value = "type") String type           //TODO: ADD TYPES MADAFAKA
+    ) {
+        Optional<Blogger> blogger;
+        HttpHeaders headers = new HttpHeaders();
+        byte[] photo;
 
-        return ResponseEntity.status(200).contentType(MediaType.parseMediaType("image/jpeg")).body(blogger.getProfilePhoto());
+        blogger = repository.findById(bloggerId);
+
+        // verify if is NOT blogger exists
+        if (!blogger.isPresent())
+            return ResponseEntity.status(400).body("Non-existing blogger for provided id");
+
+        headers.setCacheControl(CacheControl.noCache().getHeaderValue());
+        return ResponseEntity.status(200).contentType(MediaType.parseMediaType("image/jpeg")).cacheControl(CacheControl.noCache()).body(blogger.get().getProfilePhoto());
+//        return new ResponseEntity<>(photo, headers, HttpStatus.OK);
     }
 }
