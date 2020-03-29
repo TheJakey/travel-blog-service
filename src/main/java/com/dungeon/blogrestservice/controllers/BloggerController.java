@@ -7,6 +7,7 @@ import com.dungeon.blogrestservice.repositories.BloggerRepository;
 import com.dungeon.blogrestservice.repositories.GreetingRepository;
 import com.dungeon.blogrestservice.repositories.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,7 +65,7 @@ public class BloggerController {
             @RequestBody byte[] photo
     ) {
         Blogger blogger;
-        Optional<Session> session_in_repo = sessionRepository.findById(bloggerId);
+        Optional<Session> session_in_repo = sessionRepository.findByBloggerId(bloggerId);
         Session session;
 
         // check if blogger, whose photo is requested to change is logged-in
@@ -79,12 +80,18 @@ public class BloggerController {
 
         // blogger is logged in, so blogger MUST exists in bloggers table.. so .get() right away
         blogger = repository.findById(bloggerId).get();
+        blogger.setProfilePhoto(photo);
 
-
-
-
-
+        repository.save(blogger);
 
         return ResponseEntity.status(200).body("");
+    }
+
+    @RequestMapping(MAPPING_VALUE + "/photos")
+    public ResponseEntity getBloggerImage() {
+        long id = 4;
+        Blogger blogger = repository.findById(id).get();
+
+        return ResponseEntity.status(200).contentType(MediaType.parseMediaType("image/jpeg")).body(blogger.getProfilePhoto());
     }
 }
