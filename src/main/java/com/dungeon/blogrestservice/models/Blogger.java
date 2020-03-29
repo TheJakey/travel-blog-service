@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "Bloggers")
+@Table(name = "bloggers")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Blogger implements Serializable {
     @Id
@@ -22,6 +22,9 @@ public class Blogger implements Serializable {
 
     @Column(name = "profile_photo")
     private byte[] profilePhoto;
+
+    @Column(name = "cover_photo")
+    private byte[] coverPhoto;
 
     @Column(name = "email")
     private String email;
@@ -62,5 +65,13 @@ public class Blogger implements Serializable {
 
     public String getPassword() {
         return password;
+    }
+
+    public byte[] getCoverPhoto() {
+        return coverPhoto;
+    }
+
+    public void setCoverPhoto(byte[] coverPhoto) {
+        this.coverPhoto = coverPhoto;
     }
 }
