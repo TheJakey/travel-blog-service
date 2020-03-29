@@ -61,12 +61,12 @@ public class SessionController {
         Session sessionToDelete;
         sessionToDelete = repository.findByBloggerId(id);
 
-        
-        if (token.compareTo(sessionToDelete.getToken()) == 0) {
-            repository.delete(sessionToDelete);
-            return ResponseEntity.status(200).body("User was successfully logged out.");
+        if (sessionToDelete != null) {
+            if (token.compareTo(sessionToDelete.getToken()) == 0) {
+                repository.delete(sessionToDelete);
+                return ResponseEntity.status(200).body("User was successfully logged out.");
+            }
         }
-
         return ResponseEntity.status(500).body("Oops. Something went wrong.");
     }
 
