@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.Charset;
+import java.security.SecureRandom;
 import java.util.Optional;
+import java.util.Random;
 
 @RestController
 public class SessionController {
@@ -45,7 +48,7 @@ public class SessionController {
             newSession = new Session();
 
             newSession.setBloggerId(blogger.getId());
-            String newToken = "generated_token";
+            String newToken = generateToken();
             newSession.setToken(newToken);
 
             repository.save(newSession);
@@ -67,7 +70,17 @@ public class SessionController {
                 return ResponseEntity.status(200).body("User was successfully logged out.");
             }
         }
-        return ResponseEntity.status(500).body("Oops. Something went wrong.");
+        return ResponseEntity.status(500).body("User is logged out or does not exist.");
     }
 
+    private static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static SecureRandom rnd = new SecureRandom();
+
+    private String generateToken(){
+        int len = 40;
+        StringBuilder sb = new StringBuilder( len );
+        for( int i = 0; i < len; i++ )
+            sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
+        return sb.toString();
+    }
 }
