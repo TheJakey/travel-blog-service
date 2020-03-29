@@ -1,11 +1,8 @@
 package com.dungeon.blogrestservice.models;
 
-import com.dungeon.blogrestservice.forms.LoginForm;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.sun.istack.NotNull;
 
 import javax.persistence.*;
-import javax.swing.*;
 import java.io.Serializable;
 
 @Entity
@@ -17,7 +14,7 @@ public class Session implements Serializable {
     private long id;
 
     @Column(name = "blogger_id")
-    private long blogger_id;
+    private long bloggerId;
 
     @Column(name = "token")
     private String token;
@@ -25,7 +22,7 @@ public class Session implements Serializable {
     public Session() {}
 
     public Session(Long blogger_id, String token){
-        this.blogger_id = blogger_id;
+        this.bloggerId = blogger_id;
         this.token = token;
     }
 
@@ -33,16 +30,16 @@ public class Session implements Serializable {
         return this.id;
     }
 
-    public long getBlogger_id() {
-        return this.blogger_id;
+    public long getBloggerId() {
+        return this.bloggerId;
     }
 
     public String getToken() {
         return this.token;
     }
 
-    public void setBlogger_id(long blogger_id) {
-        this.blogger_id = blogger_id;
+    public void setBloggerId(long blogger_id) {
+        this.bloggerId = blogger_id;
     }
 
     public void setToken(String token) {
