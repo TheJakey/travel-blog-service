@@ -2,7 +2,6 @@ package com.dungeon.blogrestservice.controllers;
 
 import com.dungeon.blogrestservice.forms.LoginForm;
 import com.dungeon.blogrestservice.models.Blogger;
-import com.dungeon.blogrestservice.models.Greeting;
 import com.dungeon.blogrestservice.models.Session;
 import com.dungeon.blogrestservice.repositories.BloggerRepository;
 import com.dungeon.blogrestservice.repositories.SessionRepository;
@@ -10,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class SessionController {
@@ -30,38 +29,45 @@ public class SessionController {
 
         Blogger blogger = bloggerRepository.findBloggerByUsername(uname);
 
-        if (blogger == null){
+        if (blogger == null) {
             return ResponseEntity.status(400).body("Username does not exist.");
         }
+        if (uname.isEmpty() || pwd.isEmpty())
+            return ResponseEntity.status(400).body("Missing attributes.");
+        if (pwd.compareTo(blogger.getPassword()) != 0)
+            return ResponseEntity.status(401).body("Wrong data.");
         else {
-            if (uname.isEmpty() || pwd.isEmpty())
-                return ResponseEntity.status(400).body("Missing attributes.");
-            else {
-                if (pwd.compareTo(blogger.getPassword()) != 0)
-                    return ResponseEntity.status(401).body("Wrong data.");
-                else {
-                    // create token
-                        Session new_session;
-                        new_session = new Session();
+            // create token
+            if (repository.findByBloggerId(blogger.getId()) != null)
+                return ResponseEntity.status(400).body("User is already logged in.");
 
-                        new_session.setBlogger_id(blogger.getId());
-                        String new_token = "generated_token";
-                        new_session.setToken(new_token);
+            Session newSession;
+            newSession = new Session();
 
-                        repository.save(new_session);
-                        return ResponseEntity.status(200).header("token", new_token).body("user_id:" + blogger.getId());
-                    }
-                }
-            }
+            newSession.setBloggerId(blogger.getId());
+            String newToken = "generated_token";
+            newSession.setToken(newToken);
+
+            repository.save(newSession);
+            return ResponseEntity.status(200).header("token", newToken).body("user_id:" + blogger.getId());
         }
-    // delete token
-    @RequestMapping(value = "/sessions", method = RequestMethod.DELETE)
-    public ResponseEntity deleteToken(@RequestHeader String token){
-
-        repository.deleteByToken(token);
-
-        return ResponseEntity.status(200).body("User was successfully logged out.");
     }
 
+    // delete token
+    @RequestMapping(value = "/sessions/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity deleteToken(@RequestHeader String token,
+                                      @PathVariable long id) {
+
+        Session sessionToDelete;
+        sessionToDelete = repository.findByBloggerId(id);
+
+        
+        if (token.compareTo(sessionToDelete.getToken()) == 0) {
+            repository.delete(sessionToDelete);
+            return ResponseEntity.status(200).body("User was successfully logged out.");
+        }
+
+        return ResponseEntity.status(500).body("Oops. Something went wrong.");
+    }
 
 }
