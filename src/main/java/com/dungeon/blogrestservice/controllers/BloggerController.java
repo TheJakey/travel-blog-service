@@ -39,21 +39,78 @@ public class BloggerController {
         Blogger new_blogger;
         String username = registerForm.getUsername();
         String email = registerForm.getEmail();
-        Boolean password_empty = registerForm.getPassword().isEmpty();
+        String password = registerForm.getPassword();
+
+        // any nulls?
+        if (username == null || email == null || password == null)
+            return ResponseEntity.status(400).body("Missing mandatory field");
 
         // verify if all mandatory data are provided
-        if (username.isEmpty() || email.isEmpty() || password_empty)
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty())
             return ResponseEntity.status(400).body("Missing mandatory field");
 
         // verify if username already exists
         if (repository.findBloggerByUsername(username) != null)
             return ResponseEntity.status(400).body("Username already exists");
 
-        new_blogger = new Blogger(username, registerForm.getAbout_me(), email, registerForm.getPassword());
+        new_blogger = new Blogger(username, registerForm.getAbout_me(), email, password);
 
         repository.save(new_blogger);
 
         return ResponseEntity.status(201).body("");
+    }
+
+    @RequestMapping(value = MAPPING_VALUE + "/{id}", method = RequestMethod.PUT)
+    public ResponseEntity replaceBlogger(
+            @PathVariable long id,
+            @RequestHeader(value = "token") String requestToken,
+            @RequestBody RegisterForm registerForm
+    ) {
+        Blogger blogger;
+        Optional<Session> session_in_repo = sessionRepository.findByBloggerId(id);
+        Session session;
+
+        String new_username = registerForm.getUsername();
+        String new_about_me = registerForm.getAbout_me();
+        String new_email = registerForm.getEmail();
+        String new_password = registerForm.getPassword();
+
+        // check if blogger, who is requesting to change data is logged in
+        if (session_in_repo.isPresent())
+            session = session_in_repo.get();
+        else
+            return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
+
+        // verify if token for provided id matches to requestToken from header
+        if (session.getToken().compareTo(requestToken) != 0)
+            return ResponseEntity.status(403).body("You are forbidden to manipulate with this blogger");
+
+        blogger = repository.findById(id).get();
+
+
+        // be nice to them, change only what's changed ONLY till PATCH method is implemented
+        if (new_username != null) {
+            if (blogger.getUsername().compareTo(new_username) == 0)
+                blogger.setUsername(new_username);
+            // verify if new_username already exists
+            else if (repository.findBloggerByUsername(new_username) != null)
+                return ResponseEntity.status(400).body("New username already exists");
+            else
+                blogger.setUsername(new_username);
+        }
+        if (new_email != null) {
+            blogger.setEmail(new_email);
+        }
+        if (new_about_me != null) {
+            blogger.setAboutMe(new_about_me);
+        }
+        if (new_password != null) {
+            blogger.setPassword(new_password);
+        }
+
+        repository.save(blogger);
+
+        return ResponseEntity.status(200).body("");
     }
 
     @RequestMapping(value = MAPPING_VALUE + "/{id}", method = RequestMethod.DELETE)
