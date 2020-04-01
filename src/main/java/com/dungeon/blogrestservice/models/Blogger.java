@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "Bloggers")
+@Table(name = "bloggers")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Blogger implements Serializable {
     @Id
