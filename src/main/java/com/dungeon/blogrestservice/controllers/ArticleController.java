@@ -40,6 +40,8 @@ public class ArticleController {
             return ResponseEntity.status(400).body("Invalid ID");
     }
 
+    //TODO pridat tagy k clanku
+
     // POST - vytvorenie noveho clanku
     @RequestMapping(value = "/articles", method = RequestMethod.POST)
     public ResponseEntity createArticle(@RequestHeader String token,
@@ -75,7 +77,27 @@ public class ArticleController {
 
 
     // DELETE - vymazanie clanku
+    @RequestMapping(value = "/articles/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity deleteArticle(@RequestHeader String token,
+                                      @PathVariable long id) {
 
+        Optional<Article> articleToDelete;
+        articleToDelete = articleRepository.findByBloggerId(id);
+
+        if (articleToDelete.isPresent()) {
+            Optional<Session> session;
+            session = sessionRepository.findByBloggerId(id);
+
+            //TODO treba pridat moznost Forbidden to delete this article
+            if (token.compareTo(session.get().getToken()) == 0){
+                articleRepository.delete(articleToDelete.get());
+                return ResponseEntity.status(200).body("Article was successfully deleted.");
+            }
+            else
+                return ResponseEntity.status(401).body("Unauthorized.");
+        }
+        return ResponseEntity.status(400).body("Article does not exist.");
+    }
 
 
     // GET - ziskanie dlazdic urcitej kategorie clankov
