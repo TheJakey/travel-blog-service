@@ -32,7 +32,13 @@ public class Article implements Serializable {
 
     protected Article(){}
 
-    public Article(long bloggerId, String title, String articleText, Date published, int likes){}
+    public Article(long bloggerId, String title, String articleText, Date published, int likes){
+        this.bloggerId = bloggerId;
+        this.title = title;
+        this.articleText = articleText;
+        this.published = published;
+        this.numberOfLikes = likes;
+    }
 
     public long getBloggerId() {
         return bloggerId;

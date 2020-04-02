@@ -1,7 +1,6 @@
 package com.dungeon.blogrestservice.controllers;
 
 import com.dungeon.blogrestservice.forms.ArticleForm;
-import com.dungeon.blogrestservice.forms.LoginForm;
 import com.dungeon.blogrestservice.models.Article;
 import com.dungeon.blogrestservice.models.Session;
 import com.dungeon.blogrestservice.repositories.SessionRepository;
@@ -33,7 +32,7 @@ public class ArticleController {
         article = articleRepository.findById(id);
 
         if (article != null)
-            return ResponseEntity.status(200).body("Article was found.");
+            return ResponseEntity.status(200).body(article);
         else
             return ResponseEntity.status(400).body("Invalid ID");
     }
@@ -48,7 +47,7 @@ public class ArticleController {
         if (articleForm == null)
             return ResponseEntity.status(400).body("Missing attributes.");
 
-        long bloggerId = articleForm.getBloggerId();
+        long bloggerId = articleForm.getBlogger_id();
 
         Optional<Session> session;
         //TODO tu je chyba...session nenajde
@@ -61,7 +60,7 @@ public class ArticleController {
             if (token.compareTo(sessionToken) == 0) {
 
                 String title = articleForm.getTitle();
-                String articleText = articleForm.getArticleText();
+                String articleText = articleForm.getArticle_text();
                 Date published = Calendar.getInstance().getTime();
                 int likes = 0;
 
@@ -69,11 +68,10 @@ public class ArticleController {
                 article = new Article(bloggerId, title, articleText, published, likes);
                 articleRepository.save(article);
 
-                return ResponseEntity.status(201).body("New article was created.");
+                return ResponseEntity.status(201).body("");
             } else
-                return ResponseEntity.status(401).body("Unauthorized");
-        }
-        else
+                return ResponseEntity.status(401).body("");
+        } else
             return ResponseEntity.status(400).body("session is not present...");
     }
 
@@ -83,38 +81,42 @@ public class ArticleController {
     // DELETE - vymazanie clanku
     @RequestMapping(value = "/articles/{id}", method = RequestMethod.DELETE)
     public ResponseEntity deleteArticle(@RequestHeader String token,
-                                      @PathVariable long id) {
+                                        @PathVariable long id) {      // id clanku !!!
 
         Optional<Article> articleToDelete;
-        articleToDelete = articleRepository.findByBloggerId(id);
+        articleToDelete = articleRepository.findById(id);
 
-        if (articleToDelete.isPresent()) {
+        if (!articleToDelete.isPresent()) {
+            return ResponseEntity.status(400).body("Article does not exist.");
+        } else {
             Optional<Session> session;
-            session = sessionRepository.findByBloggerId(id);
-
+            long blogger_id = articleToDelete.get().getBloggerId();
+            session = sessionRepository.findByBloggerId(blogger_id);
             //TODO treba pridat moznost Forbidden to delete this article
-            if (token.compareTo(session.get().getToken()) == 0){
-                articleRepository.delete(articleToDelete.get());
-                return ResponseEntity.status(200).body("Article was successfully deleted.");
+
+            System.out.println("\n\ntttooookkkeeeennnnn>>>>>>>>>>>>>>>>>>>> " + session + "\n\n");
+
+            if (session.isPresent()) {
+                String sessionToken = session.get().getToken();
+
+                if (token.compareTo(sessionToken) == 0) {
+                    articleRepository.delete(articleToDelete.get());
+                    return ResponseEntity.status(200).body("Article was successfully deleted.");
+                } else
+                    return ResponseEntity.status(401).body("");
             }
-            else
-                return ResponseEntity.status(401).body("Unauthorized.");
+            return ResponseEntity.status(400).body("session is not present");
         }
-        return ResponseEntity.status(400).body("Article does not exist.");
     }
 
+        // GET - ziskanie dlazdic urcitej kategorie clankov
 
-    // GET - ziskanie dlazdic urcitej kategorie clankov
+        // GET - ziskanie obrazku z clanku
 
-    // GET - ziskanie obrazku z clanku
+        // POST - pridanie komentarov
 
-    // POST - pridanie komentarov
+        // POST - pridanie reakcii na komentar
 
-    // POST - pridanie reakcii na komentar
-
-    // PUT - zmena obrazku v clanku
-
-
-
+        // PUT - zmena obrazku v clanku
 
 }

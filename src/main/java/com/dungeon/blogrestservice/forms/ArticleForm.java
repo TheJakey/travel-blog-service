@@ -4,25 +4,21 @@ import java.util.Date;
 
 public class ArticleForm {
     public String title;
-    public String articleText;
+    public String article_text;
     public Date published;
-    public long bloggerId;
-    public int numberOfLikes;
+    public long blogger_id;
+    public int likes;
 
-    public String getTitle() {
-        return title;
+    public String getTitle() { return title; }
+
+    public void setTitle(String title) { this.title = title; }
+
+    public String getArticle_text() {
+        return article_text;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getArticleText() {
-        return articleText;
-    }
-
-    public void setArticleText(String articleText) {
-        this.articleText = articleText;
+    public void setArticle_text(String article_text) {
+        this.article_text = article_text;
     }
 
     public Date getPublished(){
@@ -33,20 +29,16 @@ public class ArticleForm {
         this.published = published;
     }
 
-    public long getBloggerId(){
-        return this.bloggerId;
+    public long getBlogger_id(){
+        return this.blogger_id;
     }
 
-    public void setBloggerId(long bloggerId){
-        this.bloggerId = bloggerId;
+    public void setBlogger_id(long blogger_id){
+        this.blogger_id = blogger_id;
     }
 
-    public int getNumberOfLikes() {
-        return numberOfLikes;
-    }
+    public int getLikes() { return likes; }
 
-    public void setNumberOfLikes(int numberOfLikes) {
-        this.numberOfLikes = numberOfLikes;
-    }
+    public void setLikes(int likes) { this.likes = likes; }
 }
 
