@@ -9,9 +9,7 @@ import com.dungeon.blogrestservice.repositories.ArticleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sun.jvm.hotspot.ui.EditableAtEndDocument;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
@@ -45,7 +43,7 @@ public class ArticleController {
     // POST - vytvorenie noveho clanku
     @RequestMapping(value = "/articles", method = RequestMethod.POST)
     public ResponseEntity createArticle(@RequestHeader String token,
-                                        @RequestBody ArticleForm articleForm){
+                                        @RequestBody ArticleForm articleForm) {
 
         if (articleForm == null)
             return ResponseEntity.status(400).body("Missing attributes.");
@@ -53,24 +51,30 @@ public class ArticleController {
         long bloggerId = articleForm.getBloggerId();
 
         Optional<Session> session;
+        //TODO tu je chyba...session nenajde
         session = sessionRepository.findByBloggerId(bloggerId);
 
-        if (token.compareTo(session.get().getToken()) == 0){
+        System.out.println("\n\ntttooookkkeeeennnnn>>>>>>>>>>>>>>>>>>>> " + session + "\n\n");
 
-            String title = articleForm.getTitle();
-            String articleText = articleForm.getArticleText();
-            Date published = Calendar.getInstance().getTime();
-            int likes = 0;
+        if (session.isPresent()) {
+            String sessionToken = session.get().getToken();
+            if (token.compareTo(sessionToken) == 0) {
 
-            Article article;
-            article = new Article(bloggerId, title, articleText, published, likes);
-            articleRepository.save(article);
+                String title = articleForm.getTitle();
+                String articleText = articleForm.getArticleText();
+                Date published = Calendar.getInstance().getTime();
+                int likes = 0;
 
-            return ResponseEntity.status(201).body("New article was created.");
+                Article article;
+                article = new Article(bloggerId, title, articleText, published, likes);
+                articleRepository.save(article);
+
+                return ResponseEntity.status(201).body("New article was created.");
+            } else
+                return ResponseEntity.status(401).body("Unauthorized");
         }
         else
-            //TODO: moze sa stat, ze z nejaakeho dovodu nevieme vytvorit novy clanok?
-            return ResponseEntity.status(400).body("Failed to create article.");
+            return ResponseEntity.status(400).body("session is not present...");
     }
 
     // PUT - uprava udajov clanku
