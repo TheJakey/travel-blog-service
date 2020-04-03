@@ -5,6 +5,7 @@ import com.dungeon.blogrestservice.models.Blogger;
 import com.dungeon.blogrestservice.models.Session;
 import com.dungeon.blogrestservice.repositories.BloggerRepository;
 import com.dungeon.blogrestservice.repositories.SessionRepository;
+import com.dungeon.blogrestservice.security.SessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -115,23 +116,23 @@ public class BloggerController {
 
     @RequestMapping(value = MAPPING_VALUE + "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity deleteBlogger(@PathVariable long id, @RequestHeader(value = "token") String requestToken) {
+        Optional<Blogger> optionalBlogger = repository.findById(id);
+        Optional<Session> optionalSession = sessionRepository.findByBloggerId(id);
         Blogger blogger;
-        Optional<Session> session_in_repo = sessionRepository.findByBloggerId(id);
-        Session session;
+        SessionHandler sessionHandler = new SessionHandler(id, requestToken, optionalSession);
 
-        // check if blogger, whose photo is requested to change is logged-in
-        if (session_in_repo.isPresent())
-            session = session_in_repo.get();
-        else
+        if(!sessionHandler.isBloggerLoggedIn())
             return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
 
-        // verify if token for provided bloggerId matches to requestToken from header
-        if (session.getToken().compareTo(requestToken) != 0)
+        if(!sessionHandler.isTokenMatching())
             return ResponseEntity.status(403).body("You are forbidden to delete this user");
 
-        blogger = repository.findById(id).get();
+        if (optionalBlogger.isPresent())
+            blogger = optionalBlogger.get();
+        else
+            return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
 
-        sessionRepository.delete(session);
+        sessionRepository.delete(sessionHandler.getSession());
         repository.delete(blogger);
 
         return ResponseEntity.status(200).body("");
