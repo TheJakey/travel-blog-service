@@ -73,19 +73,19 @@ public class SessionController {
 
             repository.delete(sessionToDelete.get());
             return ResponseEntity.status(200).body("User was successfully logged out.");
-        }
-        else{
+        } else {
             return ResponseEntity.status(401).body("You are not allowed to log out this user");
+        }
     }
 
-    private static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    private static SecureRandom rnd = new SecureRandom();
+        private static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        private static SecureRandom rnd = new SecureRandom();
 
-    private String generateToken(){
-        int len = 40;
-        StringBuilder sb = new StringBuilder( len );
-        for( int i = 0; i < len; i++ )
-            sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
-        return sb.toString();
+        private String generateToken () {
+            int len = 40;
+            StringBuilder sb = new StringBuilder(len);
+            for (int i = 0; i < len; i++)
+                sb.append(AB.charAt(rnd.nextInt(AB.length())));
+            return sb.toString();
+        }
     }
-}
