@@ -56,7 +56,7 @@ public class SessionController {
         }
     }
 
-    
+
     // delete token
     @RequestMapping(value = "/sessions/{id}", method = RequestMethod.DELETE)
     public ResponseEntity deleteToken(@RequestHeader String Token,

@@ -9,6 +9,7 @@ import com.dungeon.blogrestservice.repositories.SessionRepository;
 import com.dungeon.blogrestservice.repositories.ArticleRepository;
 import com.dungeon.blogrestservice.security.SessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Calendar;
@@ -64,13 +65,13 @@ public class ArticleController {
 
         SessionHandler sessionHandler = new SessionHandler(id, Token, optionalSession);
 
-        if(!sessionHandler.isBloggerLoggedIn())
+        if (!sessionHandler.isBloggerLoggedIn())
             return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
 
-        if(!sessionHandler.isTokenMatching())
+        if (!sessionHandler.isTokenMatching())
             return ResponseEntity.status(403).body("You are forbidden to manipulate with this blogger");
 
-        if (optionalBlogger.isPresent()){
+        if (optionalBlogger.isPresent()) {
             blogger = optionalBlogger.get();
 
             String title = articleForm.getTitle();
@@ -83,7 +84,7 @@ public class ArticleController {
             articleRepository.save(article);
             return ResponseEntity.status(201).body("");
         } else
-             return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
+            return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
     }
 
 
@@ -98,7 +99,7 @@ public class ArticleController {
 
         Optional<Article> articleToUpdate = articleRepository.findById(id);
 
-        if (!articleToUpdate.isPresent()){
+        if (!articleToUpdate.isPresent()) {
             return ResponseEntity.status(400).body("Invalid ID");
         }
 
@@ -111,10 +112,10 @@ public class ArticleController {
 
         SessionHandler sessionHandler = new SessionHandler(bloggerId, Token, optionalSession);
 
-        if(!sessionHandler.isBloggerLoggedIn())
+        if (!sessionHandler.isBloggerLoggedIn())
             return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
 
-        if(!sessionHandler.isTokenMatching())
+        if (!sessionHandler.isTokenMatching())
             return ResponseEntity.status(403).body("You are forbidden to manipulate with this blogger");
 
         if (optionalBlogger.isPresent())
@@ -129,7 +130,7 @@ public class ArticleController {
 
         articleRepository.save(articleToUpdate.get());
         return ResponseEntity.status(200).body("");
-}
+    }
 
 
     // DELETE - vymazanie clanku
@@ -142,8 +143,7 @@ public class ArticleController {
 
         if (!articleToDelete.isPresent()) {
             return ResponseEntity.status(400).body("Article does not exist.");
-        }
-        else {
+        } else {
             long blogger_id = articleToDelete.get().getBloggerId();
 
             Optional<Session> optionalSession = sessionRepository.findByBloggerId(blogger_id);
@@ -153,10 +153,10 @@ public class ArticleController {
 
             SessionHandler sessionHandler = new SessionHandler(blogger_id, Token, optionalSession);
 
-            if(!sessionHandler.isBloggerLoggedIn())
+            if (!sessionHandler.isBloggerLoggedIn())
                 return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
 
-            if(!sessionHandler.isTokenMatching())
+            if (!sessionHandler.isTokenMatching())
                 return ResponseEntity.status(403).body("You are forbidden to manipulate with this blogger");
 
             if (optionalBlogger.isPresent())
@@ -166,16 +166,52 @@ public class ArticleController {
 
             articleRepository.delete(articleToDelete.get());
             return ResponseEntity.status(200).body("Article was successfully deleted.");
-           }
         }
     }
 
-        // GET - ziskanie dlazdic urcitej kategorie clankov - filter
 
-        // GET - ziskanie obrazku z clanku
+    // GET - ziskanie dlazdic urcitej kategorie clankov - filter
 
-        // POST - pridanie komentarov
+    @RequestMapping(value = "/articles/tile/",
+            method = RequestMethod.GET)
+    public ResponseEntity getArticleTile(@RequestParam(value = "id") long id,
+                                         @RequestParam(value = "type") String categoryType,
+                                         @RequestParam(value = "first") long first_article,
+                                         @RequestParam(value = "limit") int limit,
+                                         @RequestParam(value = "order") char order,
+                                         @RequestHeader(value = "token") String Token) {
 
-        // POST - pridanie reakcii na komentar
+        // type = likes / date
+        // https://javadeveloperzone.com/spring/spring-jpa-sorting-paging/ 
+        Sort sort = Sort.by(categoryType.toString());
 
-        // PUT - zmena obrazku v clanku
+        if (order == '+')
+            sort = sort.ascending();
+        else {
+            if (order == '-')
+                sort = sort.descending();
+            else
+                return ResponseEntity.status(400).body("invalid order");
+        }
+
+        Iterable<Article> articleIterator = articleRepository.findAll(sort);
+
+
+        Optional<Article> article;
+        article = articleRepository.findById(id);
+
+        if (article.isPresent())
+            return ResponseEntity.status(200).body(articleIterator);
+        else
+            return ResponseEntity.status(400).body("Invalid ID");
+    }
+
+    // GET - ziskanie obrazku z clanku
+
+    // POST - pridanie komentarov
+
+    // POST - pridanie reakcii na komentar
+
+    // PUT - zmena obrazku v clanku
+
+}
