@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.html.Option;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Optional;
@@ -31,9 +32,8 @@ public class SessionController {
 
         Blogger blogger = bloggerRepository.findBloggerByUsername(uname);
 
-        if (blogger == null) {
+        if (blogger == null)
             return ResponseEntity.status(400).body("Username does not exist.");
-        }
         if (uname.isEmpty() || pwd.isEmpty())
             return ResponseEntity.status(400).body("Missing attributes.");
         if (pwd.compareTo(blogger.getPassword()) != 0)
@@ -47,8 +47,10 @@ public class SessionController {
             newSession = new Session();
 
             newSession.setBloggerId(blogger.getId());
+
             String newToken = "generated_token";
 //            String newToken = generateToken();                // TODO: Remove this before submit - TEST ONLY
+
             newSession.setToken(newToken);
 
             repository.save(newSession);
@@ -67,12 +69,13 @@ public class SessionController {
         if (!sessionToDelete.isPresent()) {
             return ResponseEntity.status(400).body("User is logged out or does not exist.");
         }
-            if (Token.compareTo(sessionToDelete.get().getToken()) == 0) {
-                repository.delete(sessionToDelete.get());
-                return ResponseEntity.status(200).body("User was successfully logged out.");
-            }
-            else
-                return ResponseEntity.status(401).body("You are not allowed to log out this user");
+        if (Token.compareTo(sessionToDelete.get().getToken()) == 0) {
+
+            repository.delete(sessionToDelete.get());
+            return ResponseEntity.status(200).body("User was successfully logged out.");
+        }
+        else{
+            return ResponseEntity.status(401).body("You are not allowed to log out this user");
     }
 
     private static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
