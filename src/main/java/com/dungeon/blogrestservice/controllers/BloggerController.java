@@ -67,27 +67,28 @@ public class BloggerController {
             @RequestHeader(value = "token") String requestToken,
             @RequestBody RegisterForm registerForm
     ) {
-        Blogger blogger;
-        Optional<Session> session_in_repo = sessionRepository.findByBloggerId(id);
-        Session session;
-
         String new_username = registerForm.getUsername();
         String new_about_me = registerForm.getAbout_me();
         String new_email = registerForm.getEmail();
         String new_password = registerForm.getPassword();
 
-        // check if blogger, who is requesting to change data is logged in
-        if (session_in_repo.isPresent())
-            session = session_in_repo.get();
-        else
+        Optional<Session> optionalSession = sessionRepository.findByBloggerId(id);
+        Optional<Blogger> optionalBlogger = repository.findById(id);
+        Session session;
+        Blogger blogger;
+        SessionHandler sessionHandler = new SessionHandler(id, requestToken, optionalSession);
+
+
+        if(!sessionHandler.isBloggerLoggedIn())
             return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
 
-        // verify if token for provided id matches to requestToken from header
-        if (session.getToken().compareTo(requestToken) != 0)
+        if(!sessionHandler.isTokenMatching())
             return ResponseEntity.status(403).body("You are forbidden to manipulate with this blogger");
 
-        blogger = repository.findById(id).get();
-
+        if (optionalBlogger.isPresent())
+            blogger = optionalBlogger.get();
+        else
+            return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
 
         // be nice to them, change only what's changed ONLY till PATCH method is implemented
         if (new_username != null) {
@@ -146,26 +147,25 @@ public class BloggerController {
             @RequestHeader(value = "Content-Type") String contentType,
             @RequestBody byte[] photo
     ) {
+        Optional<Blogger> optionalBlogger = repository.findById(bloggerId);
+        Optional<Session> optionalSession = sessionRepository.findByBloggerId(bloggerId);
         Blogger blogger;
-        Optional<Session> session_in_repo = sessionRepository.findByBloggerId(bloggerId);
-        Session session;
+        SessionHandler sessionHandler = new SessionHandler(bloggerId, requestToken, optionalSession);
 
-        // check if blogger, whose photo is requested to change is logged-in
-        if (session_in_repo.isPresent())
-            session = session_in_repo.get();
-        else
-            return ResponseEntity.status(400).body("Invalid bloggerId - blogger not logged-in");
+        if(!sessionHandler.isBloggerLoggedIn())
+            return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
 
-        // verify if token for provided bloggerId matches to requestToken from header
-        if (session.getToken().compareTo(requestToken) != 0)
+        if(!sessionHandler.isTokenMatching())
             return ResponseEntity.status(403).body("You are forbidden to change this photo");
+
+        if (optionalBlogger.isPresent())
+            blogger = optionalBlogger.get();
+        else
+            return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
 
 //        // accept only jpeg\
 //        if (contentType.compareTo(CONTENT_TYPE_JPEG) != 0)
 //            return ResponseEntity.status(400).body("Only JPEG is accepted");
-
-        // blogger is logged in, so blogger MUST exists in bloggers table.. so .get() right away
-        blogger = repository.findById(bloggerId).get();
 
         if (type.compareTo("profile") == 0)
             blogger.setProfilePhoto(photo);
@@ -187,26 +187,25 @@ public class BloggerController {
             @RequestHeader(value = "Content-Type") String contentType,
             @RequestBody byte[] photo
     ) {
+        Optional<Blogger> optionalBlogger = repository.findById(bloggerId);
+        Optional<Session> optionalSession = sessionRepository.findByBloggerId(bloggerId);
         Blogger blogger;
-        Optional<Session> session_in_repo = sessionRepository.findByBloggerId(bloggerId);
-        Session session;
+        SessionHandler sessionHandler = new SessionHandler(bloggerId, requestToken, optionalSession);
 
-        // check if blogger, whose photo is requested to change is logged-in
-        if (session_in_repo.isPresent())
-            session = session_in_repo.get();
-        else
-            return ResponseEntity.status(400).body("Invalid bloggerId - blogger not logged-in");
+        if(!sessionHandler.isBloggerLoggedIn())
+            return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
 
-        // verify if token for provided bloggerId matches to requestToken from header
-        if (session.getToken().compareTo(requestToken) != 0)
+        if(!sessionHandler.isTokenMatching())
             return ResponseEntity.status(403).body("You are forbidden to change this photo");
+
+        if (optionalBlogger.isPresent())
+            blogger = optionalBlogger.get();
+        else
+            return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
 
 //        // accept only jpeg\
 //        if (contentType.compareTo(CONTENT_TYPE_JPEG) != 0)
 //            return ResponseEntity.status(400).body("Only JPEG is accepted");
-
-        // blogger is logged in, so blogger MUST exists in bloggers table.. so .get() right away
-        blogger = repository.findById(bloggerId).get();
 
         if (type.compareTo("profile") == 0)
             blogger.setProfilePhoto(photo);
@@ -252,26 +251,21 @@ public class BloggerController {
             @RequestParam(value = "type") String type,
             @RequestHeader(value = "token") String requestToken                 // TODO: FIX token to Token with VIKI !!
     ) {
+        Optional<Blogger> optionalBlogger = repository.findById(bloggerId);
+        Optional<Session> optionalSession = sessionRepository.findByBloggerId(bloggerId);
         Blogger blogger;
-        Optional<Session> session_in_repo = sessionRepository.findByBloggerId(bloggerId);
-        Session session;
+        SessionHandler sessionHandler = new SessionHandler(bloggerId, requestToken, optionalSession);
 
-        // check if blogger, whose photo is requested to delete is logged-in
-        if (session_in_repo.isPresent())
-            session = session_in_repo.get();
-        else
-            return ResponseEntity.status(400).body("Invalid bloggerId - blogger not logged-in");
+        if(!sessionHandler.isBloggerLoggedIn())
+            return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
 
-        // verify if token for provided bloggerId matches to requestToken from header
-        if (session.getToken().compareTo(requestToken) != 0)
+        if(!sessionHandler.isTokenMatching())
             return ResponseEntity.status(403).body("You are forbidden to delete this photo");
 
-//        // accept only jpeg\
-//        if (contentType.compareTo(CONTENT_TYPE_JPEG) != 0)
-//            return ResponseEntity.status(400).body("Only JPEG is accepted");
-
-        // blogger is logged in, so blogger MUST exists in bloggers table.. so .get() right away
-        blogger = repository.findById(bloggerId).get();
+        if (optionalBlogger.isPresent())
+            blogger = optionalBlogger.get();
+        else
+            return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
 
         if (type.compareTo("profile") == 0)
             blogger.setProfilePhoto(null);
