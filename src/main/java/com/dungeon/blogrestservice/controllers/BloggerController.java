@@ -30,7 +30,7 @@ public class BloggerController {
         blogger = repository.findById(id);
 
         if (!blogger.isPresent())
-            return ResponseEntity.status(400).body("Invalid ID - User with such ID doesn't exists");
+            return ResponseEntity.status(400).body("Invalid ID - User with such ID doesn't exist");
 
         return ResponseEntity.status(200).header("Token", "totojetoken").body(blogger.get());
     }

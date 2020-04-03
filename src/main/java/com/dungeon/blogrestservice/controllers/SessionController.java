@@ -25,8 +25,7 @@ public class SessionController {
     BloggerRepository bloggerRepository;
 
     @RequestMapping(value = "/sessions", method = RequestMethod.POST)
-    public ResponseEntity createToken(
-            @RequestBody LoginForm loginform) {
+    public ResponseEntity createToken(@RequestBody LoginForm loginform) {
 
         String uname = loginform.getUsername();
         String pwd = loginform.getPassword();
@@ -53,7 +52,6 @@ public class SessionController {
 //            String newToken = generateToken();                // TODO: Remove this before submit - TEST ONLY
 
             newSession.setToken(newToken);
-            newSession.setToken(newToken);
 
             repository.save(newSession);
             return ResponseEntity.status(200).header("token", newToken).body("user_id:" + blogger.getId());
@@ -62,21 +60,22 @@ public class SessionController {
 
     // delete token
     @RequestMapping(value = "/sessions/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteToken(@RequestHeader String token,
+    public ResponseEntity deleteToken(@RequestHeader String Token,
                                       @PathVariable long id) {
 
         Optional<Session> sessionToDelete;
         sessionToDelete = repository.findByBloggerId(id);
 
-        if (sessionToDelete.isPresent()) {
-            if (token.compareTo(sessionToDelete.get().getToken()) == 0) {
-                repository.delete(sessionToDelete.get());
-                return ResponseEntity.status(200).body("User was successfully logged out.");
-            }
-            else
-                return ResponseEntity.status(401).body("You are not allowed to log out this user");
+        if (!sessionToDelete.isPresent()) {
+            return ResponseEntity.status(400).body("User is logged out or does not exist.");
         }
-        return ResponseEntity.status(400).body("User is not logged in or does not exist.");
+        if (Token.compareTo(sessionToDelete.get().getToken()) == 0) {
+
+            repository.delete(sessionToDelete.get());
+            return ResponseEntity.status(200).body("User was successfully logged out.");
+        }
+        else{
+            return ResponseEntity.status(401).body("You are not allowed to log out this user");
     }
 
     private static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
