@@ -56,24 +56,12 @@ public class SessionController {
         }
     }
 
+    
     // delete token
     @RequestMapping(value = "/sessions/{id}", method = RequestMethod.DELETE)
     public ResponseEntity deleteToken(@RequestHeader String Token,
                                       @PathVariable long id) {
 
-//        Optional<Session> sessionToDelete;
-//        sessionToDelete = sessionRepository.findByBloggerId(id);
-
-//        if (!sessionToDelete.isPresent()) {
-//            return ResponseEntity.status(400).body("User is logged out or does not exist.");
-//        }
-////        if (Token.compareTo(sessionToDelete.get().getToken()) == 0) {
-
-//            sessionRepository.delete(sessionToDelete.get());
-//            return ResponseEntity.status(200).body("User was successfully logged out.");
-//        } else {
-//            return ResponseEntity.status(401).body("You are not allowed to log out this user");
-//        }
         Optional<Session> optionalSession = sessionRepository.findByBloggerId(id);
         Optional<Blogger> optionalBlogger = bloggerRepository.findById(id);
         Session session;

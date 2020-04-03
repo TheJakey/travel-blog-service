@@ -34,7 +34,7 @@ public class ArticleController {
         Optional<Article> article;
         article = articleRepository.findById(id);
 
-        if (article != null)
+        if (article.isPresent())
             return ResponseEntity.status(200).body(article);
         else
             return ResponseEntity.status(400).body("Invalid ID");
@@ -46,6 +46,7 @@ public class ArticleController {
     //TODO ak JSON neobsahuje jeden z attributov, vytvori clanok - ???
     //TODO special characters treba vyescape-ovat - \t, \"
 
+
     // POST - vytvorenie noveho clanku
     @RequestMapping(value = "/articles", method = RequestMethod.POST)
     public ResponseEntity createArticle(@RequestHeader String Token,
@@ -54,9 +55,7 @@ public class ArticleController {
         if (articleForm == null)
             return ResponseEntity.status(400).body("Missing attributes.");
 
-//        Optional<Session> session;
-       long id = articleForm.getBlogger_id();
-//        session = sessionRepository.findByBloggerId(bloggerId);
+        long id = articleForm.getBlogger_id();
 
         Optional<Session> optionalSession = sessionRepository.findByBloggerId(id);
         Optional<Blogger> optionalBlogger = bloggerRepository.findById(id);
@@ -73,49 +72,44 @@ public class ArticleController {
 
         if (optionalBlogger.isPresent()){
             blogger = optionalBlogger.get();
-//        if (!session.isPresent()) {
-//            return ResponseEntity.status(400).body("Invalid ID");
-//        }
-//        else {
-//            String sessionToken = session.get().getToken();
-//            if (Token.compareTo(sessionToken) == 0) {
+
             String title = articleForm.getTitle();
             String articleText = articleForm.getArticle_text();
             Date published = Calendar.getInstance().getTime();
             int likes = 0;
 
-             Article article;
-             article = new Article(id, title, articleText, published, likes);
-             articleRepository.save(article);
-             return ResponseEntity.status(201).body("");
+            Article article;
+            article = new Article(id, title, articleText, published, likes);
+            articleRepository.save(article);
+            return ResponseEntity.status(201).body("");
         } else
              return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
     }
 
+
     // PUT - uprava udajov clanku
     @RequestMapping(value = "/articles/{id}", method = RequestMethod.PUT)
     public ResponseEntity updateArticle(@RequestHeader String Token,
-                                        @PathVariable long id,  // id clanku
+                                        @PathVariable long id,                       // id clanku
                                         @RequestBody ArticleForm articleForm) {
 
         if (articleForm == null)
             return ResponseEntity.status(400).body("Missing attributes.");
 
         Optional<Article> articleToUpdate = articleRepository.findById(id);
+
         if (!articleToUpdate.isPresent()){
             return ResponseEntity.status(400).body("Invalid ID");
         }
-//
-//        Optional<Session> session;
-        long bloggerId = articleToUpdate.get().getBloggerId();
-//        session = sessionRepository.findByBloggerId(bloggerId);
 
-        Optional<Session> optionalSession = sessionRepository.findByBloggerId(id);
-        Optional<Blogger> optionalBlogger = bloggerRepository.findById(id);
+        long bloggerId = articleToUpdate.get().getBloggerId();
+
+        Optional<Session> optionalSession = sessionRepository.findByBloggerId(bloggerId);
+        Optional<Blogger> optionalBlogger = bloggerRepository.findById(bloggerId);
         Session session;
         Blogger blogger;
 
-        SessionHandler sessionHandler = new SessionHandler(id, Token, optionalSession);
+        SessionHandler sessionHandler = new SessionHandler(bloggerId, Token, optionalSession);
 
         if(!sessionHandler.isBloggerLoggedIn())
             return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
@@ -128,22 +122,13 @@ public class ArticleController {
         else
             return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
 
-//        if (!session.isPresent()) {
-//            return ResponseEntity.status(400).body("Invalid ID");
-//        }
-//        else {
-//            String sessionToken = session.get().getToken();
-//            if (Token.compareTo(sessionToken) == 0) {
-
-                articleToUpdate.get().setTitle(articleForm.getTitle());
-                articleToUpdate.get().setArticleText(articleForm.getArticle_text());
-                articleToUpdate.get().setPublished(Calendar.getInstance().getTime());           // posledna zmena
-                //articleToUpdate.get().setTag(articleForm.getTag());                   // ked uz budu spravene aj tagy
+        articleToUpdate.get().setTitle(articleForm.getTitle());
+        articleToUpdate.get().setArticleText(articleForm.getArticle_text());
+        articleToUpdate.get().setPublished(Calendar.getInstance().getTime());           // posledna zmena
+        //articleToUpdate.get().setTag(articleForm.getTag());                   // ked uz budu spravene aj tagy
 
         articleRepository.save(articleToUpdate.get());
         return ResponseEntity.status(200).body("");
-//    } else
-//        return ResponseEntity.status(401).body("");
 }
 
 
@@ -159,17 +144,14 @@ public class ArticleController {
             return ResponseEntity.status(400).body("Article does not exist.");
         }
         else {
-//            Optional<Session> session;
             long blogger_id = articleToDelete.get().getBloggerId();
-//            session = sessionRepository.findByBloggerId(blogger_id);
 
-
-            Optional<Session> optionalSession = sessionRepository.findByBloggerId(id);
-            Optional<Blogger> optionalBlogger = bloggerRepository.findById(id);
+            Optional<Session> optionalSession = sessionRepository.findByBloggerId(blogger_id);
+            Optional<Blogger> optionalBlogger = bloggerRepository.findById(blogger_id);
             Session session;
             Blogger blogger;
 
-            SessionHandler sessionHandler = new SessionHandler(id, Token, optionalSession);
+            SessionHandler sessionHandler = new SessionHandler(blogger_id, Token, optionalSession);
 
             if(!sessionHandler.isBloggerLoggedIn())
                 return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
@@ -182,20 +164,9 @@ public class ArticleController {
             else
                 return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
 
-
-//
-//             if (!session.isPresent()) {
-//                 return ResponseEntity.status(400).body("");
-//             }
-//             else {
-//                String sessionToken = session.get().getToken();
-//                if (Token.compareTo(sessionToken) == 0) {
-//
             articleRepository.delete(articleToDelete.get());
             return ResponseEntity.status(200).body("Article was successfully deleted.");
-//                } else
-//                    return ResponseEntity.status(401).body("");
-            }
+           }
         }
     }
 
