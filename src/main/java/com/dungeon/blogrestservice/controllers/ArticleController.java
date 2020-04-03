@@ -143,7 +143,7 @@ public class ArticleController {
         }
     }
 
-        // GET - ziskanie dlazdic urcitej kategorie clankov
+        // GET - ziskanie dlazdic urcitej kategorie clankov - filter
 
         // GET - ziskanie obrazku z clanku
 
