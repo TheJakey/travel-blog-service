@@ -30,7 +30,6 @@ public class SessionHandler {
         }
     }
 
-
     public Session getSession() {
         return session;
     }

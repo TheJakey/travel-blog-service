@@ -5,21 +5,19 @@ import com.dungeon.blogrestservice.models.Blogger;
 import com.dungeon.blogrestservice.models.Session;
 import com.dungeon.blogrestservice.repositories.BloggerRepository;
 import com.dungeon.blogrestservice.repositories.SessionRepository;
+import com.dungeon.blogrestservice.security.SessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
-import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Optional;
-import java.util.Random;
 
 @RestController
 public class SessionController {
 
     @Autowired
-    SessionRepository repository;
+    SessionRepository sessionRepository;
 
     @Autowired
     BloggerRepository bloggerRepository;
@@ -40,7 +38,7 @@ public class SessionController {
             return ResponseEntity.status(401).body("Wrong data.");
         else {
             // create token
-            if (repository.findByBloggerId(blogger.getId()).isPresent())
+            if (sessionRepository.findByBloggerId(blogger.getId()).isPresent())
                 return ResponseEntity.status(400).body("User is already logged in.");
 
             Session newSession;
@@ -53,7 +51,7 @@ public class SessionController {
 
             newSession.setToken(newToken);
 
-            repository.save(newSession);
+            sessionRepository.save(newSession);
             return ResponseEntity.status(200).header("token", newToken).body("user_id:" + blogger.getId());
         }
     }
@@ -63,19 +61,39 @@ public class SessionController {
     public ResponseEntity deleteToken(@RequestHeader String Token,
                                       @PathVariable long id) {
 
-        Optional<Session> sessionToDelete;
-        sessionToDelete = repository.findByBloggerId(id);
+//        Optional<Session> sessionToDelete;
+//        sessionToDelete = sessionRepository.findByBloggerId(id);
 
-        if (!sessionToDelete.isPresent()) {
-            return ResponseEntity.status(400).body("User is logged out or does not exist.");
-        }
-        if (Token.compareTo(sessionToDelete.get().getToken()) == 0) {
+//        if (!sessionToDelete.isPresent()) {
+//            return ResponseEntity.status(400).body("User is logged out or does not exist.");
+//        }
+////        if (Token.compareTo(sessionToDelete.get().getToken()) == 0) {
 
-            repository.delete(sessionToDelete.get());
-            return ResponseEntity.status(200).body("User was successfully logged out.");
-        } else {
-            return ResponseEntity.status(401).body("You are not allowed to log out this user");
-        }
+//            sessionRepository.delete(sessionToDelete.get());
+//            return ResponseEntity.status(200).body("User was successfully logged out.");
+//        } else {
+//            return ResponseEntity.status(401).body("You are not allowed to log out this user");
+//        }
+        Optional<Session> optionalSession = sessionRepository.findByBloggerId(id);
+        Optional<Blogger> optionalBlogger = bloggerRepository.findById(id);
+        Session session;
+        Blogger blogger;
+
+        SessionHandler sessionHandler = new SessionHandler(id, Token, optionalSession);
+
+        if(!sessionHandler.isBloggerLoggedIn())
+            return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
+
+        if(!sessionHandler.isTokenMatching())
+            return ResponseEntity.status(403).body("You are forbidden to manipulate with this blogger");
+
+        if (optionalBlogger.isPresent())
+            blogger = optionalBlogger.get();
+        else
+            return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
+
+        sessionRepository.delete(optionalSession.get());
+        return ResponseEntity.status(200).body("User was successfully logged out.");
     }
 
         private static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
