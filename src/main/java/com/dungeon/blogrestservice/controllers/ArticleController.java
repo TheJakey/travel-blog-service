@@ -8,7 +8,6 @@ import com.dungeon.blogrestservice.repositories.ArticleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
@@ -24,11 +23,9 @@ public class ArticleController {
 
     // GET - ziskanie udajov o clanku
     @RequestMapping(value = "/articles/full/{id}", method = RequestMethod.GET)
-    public ResponseEntity getArticle(
-            @PathVariable long id) {
+    public ResponseEntity getArticle(@PathVariable long id) {
 
         Optional<Article> article;
-
         article = articleRepository.findById(id);
 
         if (article != null)
@@ -38,26 +35,29 @@ public class ArticleController {
     }
 
     //TODO pridat tagy k clanku
+    //TODO treba osetrit, aby ten isty clanok nevytvoril dvakrat - mozno pridat rovno nejaky "copyright", ze rovnaky obsah je uz vytvoreny
+    //TODO treba osterit, aby nemohol vytvorit prazdny clanok, ani "", ani null - title, text (aspon jedno neprazdne slovo) a jeden tag povinny
+    //TODO ak JSON neobsahuje jeden z attributov, vytvori clanok - ???
+    //TODO special characters treba vyescape-ovat - \t, \"
 
     // POST - vytvorenie noveho clanku
     @RequestMapping(value = "/articles", method = RequestMethod.POST)
-    public ResponseEntity createArticle(@RequestHeader String token,
+    public ResponseEntity createArticle(@RequestHeader String Token,
                                         @RequestBody ArticleForm articleForm) {
 
         if (articleForm == null)
             return ResponseEntity.status(400).body("Missing attributes.");
 
-        long bloggerId = articleForm.getBlogger_id();
-
         Optional<Session> session;
-        //TODO tu je chyba...session nenajde
+        long bloggerId = articleForm.getBlogger_id();
         session = sessionRepository.findByBloggerId(bloggerId);
 
-        System.out.println("\n\ntttooookkkeeeennnnn>>>>>>>>>>>>>>>>>>>> " + session + "\n\n");
-
-        if (session.isPresent()) {
+        if (!session.isPresent()) {
+            return ResponseEntity.status(400).body("Invalid ID");
+        }
+        else {
             String sessionToken = session.get().getToken();
-            if (token.compareTo(sessionToken) == 0) {
+            if (Token.compareTo(sessionToken) == 0) {
 
                 String title = articleForm.getTitle();
                 String articleText = articleForm.getArticle_text();
@@ -67,20 +67,52 @@ public class ArticleController {
                 Article article;
                 article = new Article(bloggerId, title, articleText, published, likes);
                 articleRepository.save(article);
-
                 return ResponseEntity.status(201).body("");
             } else
                 return ResponseEntity.status(401).body("");
-        } else
-            return ResponseEntity.status(400).body("session is not present...");
+        }
     }
 
     // PUT - uprava udajov clanku
+    @RequestMapping(value = "/articles/{id}", method = RequestMethod.PUT)
+    public ResponseEntity updateArticle(@RequestHeader String Token,
+                                        @PathVariable long id,  // id clanku
+                                        @RequestBody ArticleForm articleForm) {
 
+        if (articleForm == null)
+            return ResponseEntity.status(400).body("Missing attributes.");
+
+        Optional<Article> articleToUpdate = articleRepository.findById(id);
+        if (!articleToUpdate.isPresent()){
+            return ResponseEntity.status(400).body("Invalid ID");
+        }
+        // TODO pridat verifikaciu
+        Optional<Session> session;
+        long bloggerId = articleToUpdate.get().getBloggerId();
+        session = sessionRepository.findByBloggerId(bloggerId);
+
+        if (!session.isPresent()) {
+            return ResponseEntity.status(400).body("Invalid ID");
+        }
+        else {
+            String sessionToken = session.get().getToken();
+            if (Token.compareTo(sessionToken) == 0) {
+
+                articleToUpdate.get().setTitle(articleForm.getTitle());
+                articleToUpdate.get().setArticleText(articleForm.getArticle_text());
+                articleToUpdate.get().setPublished(Calendar.getInstance().getTime());           // posledna zmena
+                //articleToUpdate.get().setTag(articleForm.getTag());                   // ked uz budu spravene aj tagy
+
+                articleRepository.save(articleToUpdate.get());
+                return ResponseEntity.status(200).body("");
+            } else
+                return ResponseEntity.status(401).body("");
+        }
+    }
 
     // DELETE - vymazanie clanku
     @RequestMapping(value = "/articles/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteArticle(@RequestHeader String token,
+    public ResponseEntity deleteArticle(@RequestHeader String Token,
                                         @PathVariable long id) {      // id clanku !!!
 
         Optional<Article> articleToDelete;
@@ -88,24 +120,26 @@ public class ArticleController {
 
         if (!articleToDelete.isPresent()) {
             return ResponseEntity.status(400).body("Article does not exist.");
-        } else {
+        }
+        else {
             Optional<Session> session;
             long blogger_id = articleToDelete.get().getBloggerId();
             session = sessionRepository.findByBloggerId(blogger_id);
+
             //TODO treba pridat moznost Forbidden to delete this article
 
-            System.out.println("\n\ntttooookkkeeeennnnn>>>>>>>>>>>>>>>>>>>> " + session + "\n\n");
-
-            if (session.isPresent()) {
+             if (!session.isPresent()) {
+                 return ResponseEntity.status(400).body("");
+             }
+             else {
                 String sessionToken = session.get().getToken();
+                if (Token.compareTo(sessionToken) == 0) {
 
-                if (token.compareTo(sessionToken) == 0) {
                     articleRepository.delete(articleToDelete.get());
                     return ResponseEntity.status(200).body("Article was successfully deleted.");
                 } else
                     return ResponseEntity.status(401).body("");
             }
-            return ResponseEntity.status(400).body("session is not present");
         }
     }
 

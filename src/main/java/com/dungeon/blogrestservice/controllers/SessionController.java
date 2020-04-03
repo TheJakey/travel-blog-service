@@ -24,8 +24,7 @@ public class SessionController {
     BloggerRepository bloggerRepository;
 
     @RequestMapping(value = "/sessions", method = RequestMethod.POST)
-    public ResponseEntity createToken(
-            @RequestBody LoginForm loginform) {
+    public ResponseEntity createToken(@RequestBody LoginForm loginform) {
 
         String uname = loginform.getUsername();
         String pwd = loginform.getPassword();
@@ -59,21 +58,21 @@ public class SessionController {
 
     // delete token
     @RequestMapping(value = "/sessions/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteToken(@RequestHeader String token,
+    public ResponseEntity deleteToken(@RequestHeader String Token,
                                       @PathVariable long id) {
 
         Optional<Session> sessionToDelete;
         sessionToDelete = repository.findByBloggerId(id);
 
-        if (sessionToDelete.isPresent()) {
-            if (token.compareTo(sessionToDelete.get().getToken()) == 0) {
+        if (!sessionToDelete.isPresent()) {
+            return ResponseEntity.status(400).body("User is logged out or does not exist.");
+        }
+            if (Token.compareTo(sessionToDelete.get().getToken()) == 0) {
                 repository.delete(sessionToDelete.get());
                 return ResponseEntity.status(200).body("User was successfully logged out.");
             }
             else
                 return ResponseEntity.status(401).body("You are not allowed to log out this user");
-        }
-        return ResponseEntity.status(400).body("User is logged out or does not exist.");
     }
 
     private static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

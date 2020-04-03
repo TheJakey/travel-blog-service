@@ -8,6 +8,7 @@ public class ArticleForm {
     public Date published;
     public long blogger_id;
     public int likes;
+    // public Tag tag;
 
     public String getTitle() { return title; }
 
