@@ -79,4 +79,12 @@ public class Article implements Serializable {
     public void setLikes(int numberOfLikes) {
         this.likes = numberOfLikes;
     }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 }

@@ -104,8 +104,9 @@ public class ArticleController {
 
             Article article;
             article = new Article(id, title, articleText, published, likes);
-            articleRepository.save(article);
-            return ResponseEntity.status(201).body("");
+
+            Article just_created_article = articleRepository.save(article);
+            return ResponseEntity.status(201).body(just_created_article.getId());
         } else
             return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
     }
