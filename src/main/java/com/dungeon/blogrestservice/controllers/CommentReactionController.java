@@ -4,7 +4,6 @@ import com.dungeon.blogrestservice.forms.CommentForm;
 import com.dungeon.blogrestservice.models.Comment;
 import com.dungeon.blogrestservice.models.CommentRection;
 import com.dungeon.blogrestservice.models.Session;
-import com.dungeon.blogrestservice.repositories.ArticleRepository;
 import com.dungeon.blogrestservice.repositories.CommentRectionRepository;
 import com.dungeon.blogrestservice.repositories.CommentRepository;
 import com.dungeon.blogrestservice.repositories.SessionRepository;
@@ -26,12 +25,6 @@ public class CommentReactionController {
 
     @Autowired
     CommentRepository commentRepository;
-//    @RequestMapping(value = "/comment", method = RequestMethod.GET)
-//    public Comment getComments() {
-//        Comment comment = commentRepository.findById((long)1).get();
-//
-//        return comment;
-//    }
 
     @RequestMapping(value = "/articles/{article_id}/comments/{comment_id}/comment_reaction", method = RequestMethod.POST)
     public ResponseEntity createCommentReaction(
