@@ -5,10 +5,14 @@ import com.dungeon.blogrestservice.models.Article;
 import com.dungeon.blogrestservice.models.Blogger;
 import com.dungeon.blogrestservice.models.Session;
 import com.dungeon.blogrestservice.repositories.BloggerRepository;
+import com.dungeon.blogrestservice.repositories.PagingAndSortingRepository;
 import com.dungeon.blogrestservice.repositories.SessionRepository;
 import com.dungeon.blogrestservice.repositories.ArticleRepository;
 import com.dungeon.blogrestservice.security.SessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +31,9 @@ public class ArticleController {
 
     @Autowired
     BloggerRepository bloggerRepository;
+
+    @Autowired
+    PagingAndSortingRepository pagingAndSortingRepository;
 
     // GET - ziskanie udajov o clanku
     @RequestMapping(value = "/articles/full/{id}", method = RequestMethod.GET)
@@ -172,45 +179,70 @@ public class ArticleController {
 
     // GET - ziskanie dlazdic urcitej kategorie clankov - filter
 
-    @RequestMapping(value = "/articles/tile/",
-            method = RequestMethod.GET)
-    public ResponseEntity getArticleTile(@RequestParam(value = "id") long id,
-                                         @RequestParam(value = "type") String categoryType,
-                                         @RequestParam(value = "first") long first_article,
-                                         @RequestParam(value = "limit") int limit,
-                                         @RequestParam(value = "order") char order,
-                                         @RequestHeader(value = "token") String Token) {
+    @RequestMapping(value = "/articles/tile", method = RequestMethod.GET)
+    public ResponseEntity getArticleTile(@RequestParam(required = false, value = "id") Long id,
+                                         @RequestParam(required = false, value = "type") String categoryType,
+                                         @RequestParam(required = false, value = "first") Integer first_article,
+                                         @RequestParam(required = false, value = "limit") Integer limit,
+                                         @RequestParam(required = false, value = "order") Character order) {
 
-        // type = likes / date
-        // https://javadeveloperzone.com/spring/spring-jpa-sorting-paging/ 
-        Sort sort = Sort.by(categoryType.toString());
-
-        if (order == '+')
-            sort = sort.ascending();
-        else {
-            if (order == '-')
-                sort = sort.descending();
-            else
-                return ResponseEntity.status(400).body("invalid order");
+        Sort sort = null;
+        if (id == null && categoryType == null && first_article == null && limit == null && order == null){
+            sort = Sort.by("published").descending();
+            first_article = 0;
+            limit = 10;
         }
+        else {
 
-        Iterable<Article> articleIterator = articleRepository.findAll(sort);
+            if (id != null)
+                return ResponseEntity.status(200).body(articleRepository.findById(id));
 
+            // Articles can be sorted by the categoryType given in request: popular, date , title
+            if (!categoryType.isEmpty()) {
 
-        Optional<Article> article;
-        article = articleRepository.findById(id);
+                if (categoryType.compareTo("popular") == 0)
+                    sort = Sort.by("likes");
+                else if ((categoryType.compareTo("date") == 0))
+                    sort = Sort.by("published");
+                else if (categoryType.compareTo("articletitle") == 0)
+                    sort = Sort.by("title");
+                else
+                    return ResponseEntity.status(400).body("");
+            } else
+                sort = Sort.by("published");
 
-        if (article.isPresent())
-            return ResponseEntity.status(200).body(articleIterator);
+            // Ordered by ASC / DESC
+            if (order != null) {
+                if (order == 'a')
+                    sort = sort.ascending();
+                else {
+                    if (order == 'd')
+                        sort = sort.descending();
+                    else
+                        return ResponseEntity.status(400).body("");
+                }
+            } else
+                sort = sort.descending();
+
+            // Pagination from 'first_article' showing #'limit' articles
+            if (first_article == null)
+                first_article = 0;
+
+            if (limit == null)
+                limit = 10;
+
+        }
+        Pageable paging = PageRequest.of(first_article, limit, sort);
+        Iterable<Article> articleIterator = articleRepository.findAll(paging);
+
+        if (articleIterator == null)
+            return ResponseEntity.status(404).body("");
         else
-            return ResponseEntity.status(400).body("Invalid ID");
+            return ResponseEntity.status(200).body(articleIterator);
     }
 
     // GET - ziskanie obrazku z clanku
 
-    // POST - pridanie komentarov
-
-    // POST - pridanie reakcii na komentar
 
     // PUT - zmena obrazku v clanku
 
