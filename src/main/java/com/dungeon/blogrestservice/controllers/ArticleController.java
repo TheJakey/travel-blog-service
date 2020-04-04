@@ -215,7 +215,7 @@ public class ArticleController {
                 return ResponseEntity.status(200).body(articleRepository.findById(id));
 
             // Articles can be sorted by the categoryType given in request: popular, date , title
-            if (!categoryType.isEmpty()) {
+            if (categoryType != null) {
 
                 if (categoryType.compareTo("popular") == 0)
                     sort = Sort.by("likes");
