@@ -3,9 +3,11 @@ package com.dungeon.blogrestservice.controllers;
 import com.dungeon.blogrestservice.forms.ArticleForm;
 import com.dungeon.blogrestservice.models.Article;
 import com.dungeon.blogrestservice.models.Blogger;
+import com.dungeon.blogrestservice.models.Comment;
 import com.dungeon.blogrestservice.models.Session;
 import com.dungeon.blogrestservice.repositories.BloggerRepository;
 import com.dungeon.blogrestservice.repositories.PagingAndSortingRepository;
+import com.dungeon.blogrestservice.repositories.CommentRepository;
 import com.dungeon.blogrestservice.repositories.SessionRepository;
 import com.dungeon.blogrestservice.repositories.ArticleRepository;
 import com.dungeon.blogrestservice.security.SessionHandler;
@@ -18,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -34,27 +37,41 @@ public class ArticleController {
 
     @Autowired
     PagingAndSortingRepository pagingAndSortingRepository;
+    
+    @Autowired
+    CommentRepository commentRepository;
+
 
     // GET - ziskanie udajov o clanku
     @RequestMapping(value = "/articles/full/{id}", method = RequestMethod.GET)
     public ResponseEntity getArticle(@PathVariable long id) {
+        Optional<Article> optionalArticle = articleRepository.findById(id);
+        Article article;
+        ArticleForm articleForm = new ArticleForm();
 
-        Optional<Article> article;
-        article = articleRepository.findById(id);
+        if (optionalArticle.isPresent()) {
+            article = optionalArticle.get();
 
-        if (article.isPresent())
-            return ResponseEntity.status(200).body(article);
+            articleForm.setBlogger_id(article.getBloggerId());
+            articleForm.setArticle_text(article.getArticleText());
+            articleForm.setLikes(article.getNumberOfLikes());
+            articleForm.setPublished(article.getPublished());
+            articleForm.setTitle(article.getTitle());
+            articleForm.setComments(getCommentsFromDB(id));
+
+            return ResponseEntity.status(200).body(articleForm);
+        }
         else
             return ResponseEntity.status(400).body("Invalid ID");
     }
 
-    //TODO pridat tagy k clanku
-    //TODO treba osetrit, aby ten isty clanok nevytvoril dvakrat - mozno pridat rovno nejaky "copyright", ze rovnaky obsah je uz vytvoreny
-    //TODO treba osterit, aby nemohol vytvorit prazdny clanok, ani "", ani null - title, text (aspon jedno neprazdne slovo) a jeden tag povinny
-    //TODO ak JSON neobsahuje jeden z attributov, vytvori clanok - ???
-    //TODO special characters treba vyescape-ovat - \t, \"
+    private List<Comment> getCommentsFromDB(long articleId) {
+        List<Comment> optionalComments = commentRepository.findAllByArticleId(articleId);
 
+        return optionalComments;
+    }
 
+  
     // POST - vytvorenie noveho clanku
     @RequestMapping(value = "/articles", method = RequestMethod.POST)
     public ResponseEntity createArticle(@RequestHeader String Token,
