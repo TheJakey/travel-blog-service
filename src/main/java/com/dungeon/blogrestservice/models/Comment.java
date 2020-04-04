@@ -26,7 +26,7 @@ public class Comment {
     @Column(name = "published")
     private Date published;
 
-    @OneToMany(mappedBy = "comment_id")
+    @OneToMany(mappedBy = "commentId")
     private List<CommentRection> commentRection;
 
     public Comment(){}

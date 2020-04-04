@@ -14,10 +14,10 @@ public class CommentRection {
     private long id;
 
     @Column(name = "comment_id")
-    private long comment_id;
+    private long commentId;
 
     @Column(name = "author_id")
-    private long author_id;
+    private long authorId;
 
     @Column(name = "comment", length = 4000)
     private String comment;
@@ -35,20 +35,20 @@ public class CommentRection {
         this.id = id;
     }
 
-    public long getComment_id() {
-        return comment_id;
+    public long getCommentId() {
+        return commentId;
     }
 
-    public void setComment_id(long comment_id) {
-        this.comment_id = comment_id;
+    public void setCommentId(long commentId) {
+        this.commentId = commentId;
     }
 
-    public long getAuthor_id() {
-        return author_id;
+    public long getAuthorId() {
+        return authorId;
     }
 
-    public void setAuthor_id(long author_id) {
-        this.author_id = author_id;
+    public void setAuthorId(long authorId) {
+        this.authorId = authorId;
     }
 
     public String getComment() {

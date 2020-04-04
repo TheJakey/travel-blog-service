@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Calendar;
 import java.util.Optional;
 
 @RestController
@@ -58,6 +59,7 @@ public class CommentController {
         new_comment.setArticleId(article_id);
         new_comment.setAuthorId(bloggerId);
         new_comment.setComment(comment_text);
+        new_comment.setPublished(Calendar.getInstance().getTime());
 
         commentRepository.save(new_comment);
 
