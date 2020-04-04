@@ -37,6 +37,7 @@ public class CommentReactionController {
         CommentRection new_comment_reaction = new CommentRection();
         long bloggerId = commentForm.getBlogger_id();
         String comment_text = commentForm.getComment();
+        CommentRection just_added_comment_reaction;
 
         // any nulls?
         if (bloggerId == 0 || comment_text == null)
@@ -62,8 +63,8 @@ public class CommentReactionController {
         new_comment_reaction.setComment(comment_text);
         new_comment_reaction.setPublished(Calendar.getInstance().getTime());
 
-        commentReactionRepository.save(new_comment_reaction);
+        just_added_comment_reaction = commentReactionRepository.save(new_comment_reaction);
 
-        return ResponseEntity.status(201).body("");
+        return ResponseEntity.status(201).body(just_added_comment_reaction.getId());
     }
 }

@@ -46,13 +46,13 @@ public class SessionController {
 
             newSession.setBloggerId(blogger.getId());
 
-            String newToken = "generated_token";
+            String newToken = "generated_token";                // TODO: Remove this before submit - TEST ONLY
 //            String newToken = generateToken();                // TODO: Remove this before submit - TEST ONLY
 
             newSession.setToken(newToken);
 
             sessionRepository.save(newSession);
-            return ResponseEntity.status(200).header("token", newToken).body("user_id:" + blogger.getId());
+            return ResponseEntity.status(200).header("token", newToken).body(blogger.getId());
         }
     }
 
