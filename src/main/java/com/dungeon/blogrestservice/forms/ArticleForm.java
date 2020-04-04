@@ -1,13 +1,17 @@
 package com.dungeon.blogrestservice.forms;
 
+import com.dungeon.blogrestservice.models.Comment;
+
 import java.util.Date;
+import java.util.List;
 
 public class ArticleForm {
-    public String title;
-    public String article_text;
-    public Date published;
-    public long blogger_id;
-    public int likes;
+    private String title;
+    private String article_text;
+    private Date published;
+    private long blogger_id;
+    private int likes;
+    private List<Comment> comments;
     // public Tag tag;
 
     public String getTitle() { return title; }
@@ -41,5 +45,13 @@ public class ArticleForm {
     public int getLikes() { return likes; }
 
     public void setLikes(int likes) { this.likes = likes; }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
 }
 
