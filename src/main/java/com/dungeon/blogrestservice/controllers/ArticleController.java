@@ -5,11 +5,7 @@ import com.dungeon.blogrestservice.models.Article;
 import com.dungeon.blogrestservice.models.Blogger;
 import com.dungeon.blogrestservice.models.Comment;
 import com.dungeon.blogrestservice.models.Session;
-import com.dungeon.blogrestservice.repositories.BloggerRepository;
-import com.dungeon.blogrestservice.repositories.PagingAndSortingRepository;
-import com.dungeon.blogrestservice.repositories.CommentRepository;
-import com.dungeon.blogrestservice.repositories.SessionRepository;
-import com.dungeon.blogrestservice.repositories.ArticleRepository;
+import com.dungeon.blogrestservice.repositories.*;
 import com.dungeon.blogrestservice.security.SessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +36,9 @@ public class ArticleController {
     @Autowired
     CommentRepository commentRepository;
 
+    @Autowired
+    ArticlePhotoRepository articlePhotoRepository;
+
 
     // GET - ziskanie udajov o clanku
     @RequestMapping(value = "/articles/full/{id}", method = RequestMethod.GET)
@@ -57,6 +56,7 @@ public class ArticleController {
             articleForm.setPublished(article.getPublished());
             articleForm.setTitle(article.getTitle());
             articleForm.setComments(getCommentsFromDB(id));
+            articleForm.setNumberOfPhotosInGallery(articlePhotoRepository.findAllByArticleId(id).size());
 
             return ResponseEntity.status(200).body(articleForm);
         }
