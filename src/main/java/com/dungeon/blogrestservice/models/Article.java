@@ -28,7 +28,7 @@ public class Article implements Serializable {
     private Date published;
 
     @Column(name = "likes")
-    private int numberOfLikes;
+    private int likes;
 
     protected Article(){}
 
@@ -37,7 +37,7 @@ public class Article implements Serializable {
         this.title = title;
         this.articleText = articleText;
         this.published = published;
-        this.numberOfLikes = likes;
+        this.likes = likes;
     }
 
     public long getBloggerId() {
@@ -72,11 +72,11 @@ public class Article implements Serializable {
         this.published = published;
     }
 
-    public int getNumberOfLikes() {
-        return numberOfLikes;
+    public int getLikes() {
+        return likes;
     }
 
-    public void setNumberOfLikes(int numberOfLikes) {
-        this.numberOfLikes = numberOfLikes;
+    public void setLikes(int numberOfLikes) {
+        this.likes = numberOfLikes;
     }
 }

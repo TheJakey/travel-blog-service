@@ -12,7 +12,6 @@ import com.dungeon.blogrestservice.repositories.SessionRepository;
 import com.dungeon.blogrestservice.repositories.ArticleRepository;
 import com.dungeon.blogrestservice.security.SessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -54,7 +53,7 @@ public class ArticleController {
 
             articleForm.setBlogger_id(article.getBloggerId());
             articleForm.setArticle_text(article.getArticleText());
-            articleForm.setLikes(article.getNumberOfLikes());
+            articleForm.setLikes(article.getLikes());
             articleForm.setPublished(article.getPublished());
             articleForm.setTitle(article.getTitle());
             articleForm.setComments(getCommentsFromDB(id));
