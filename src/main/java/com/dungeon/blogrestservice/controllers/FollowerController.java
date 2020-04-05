@@ -95,20 +95,14 @@ public class FollowerController {
         if (!optionalBlogger.isPresent() || !followingBlogger.isPresent())
             return ResponseEntity.status(400).body("Invalid ID - user with such ID doesn't exist");
 
-        Iterable<Follower> followersOfBlogger = followerRepository.findAllByBloggerId(id_blogger);
+        List<Follower> bloggersFanclub = followerRepository.findAllByBloggerId(id_blogger);
 
-        while (followersOfBlogger.iterator().hasNext()) {
-            Follower next = followersOfBlogger.iterator().next();
-
-            if (id_follower == next.getFollowerId()) {
+        if (bloggersFanclub.contains(id_follower))
                 return ResponseEntity.status(400).body("You are already following this blogger");
-            }
-        }
 
         Follower newFollower = new Follower(id_blogger, id_follower);
         followerRepository.save(newFollower);
 
         return ResponseEntity.status(201).body("");
     }
-
 }

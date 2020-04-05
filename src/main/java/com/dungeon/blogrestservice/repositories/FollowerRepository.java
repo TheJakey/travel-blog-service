@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface FollowerRepository extends CrudRepository<Follower, Long> {
 
-    Iterable<Follower> findAllByBloggerId(long id);
+    List<Follower> findAllByBloggerId(long id);
 
-    Iterable<Follower> findAllByFollowerId(long id);
+    List<Follower> findAllByFollowerId(long id);
 }
