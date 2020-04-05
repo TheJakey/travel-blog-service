@@ -2,7 +2,6 @@ package com.dungeon.blogrestservice.controllers;
 
 import com.dungeon.blogrestservice.models.Article;
 import com.dungeon.blogrestservice.models.ArticlePhoto;
-import com.dungeon.blogrestservice.models.Blogger;
 import com.dungeon.blogrestservice.models.Session;
 import com.dungeon.blogrestservice.repositories.ArticlePhotoRepository;
 import com.dungeon.blogrestservice.repositories.ArticleRepository;
@@ -30,25 +29,7 @@ public class ArticlePhotoController {
     @Autowired
     ArticleRepository articleRepository;
 
-    //
-    //
-    //
-    //
-    // TODO: Delete all by article ID
-    // TODO: Delete?
-    //
-    //
-    //
-    //
-    @RequestMapping(value = "/articles/{article_id}/photos", method = RequestMethod.DELETE)
-    public ResponseEntity getPhotos(@PathVariable long article_id) {
-        articlePhotoRepository.deleteAllByArticleId(article_id);
-
-        return ResponseEntity.status(200).body("");
-    }
-
-
-        @RequestMapping(value = "/articles/{article_id}/photos/{photo_position}", method = RequestMethod.GET)
+    @RequestMapping(value = "/articles/{article_id}/photos/{photo_position}", method = RequestMethod.GET)
     public ResponseEntity getPhotos(@PathVariable long article_id, @PathVariable int photo_position) {
         HttpHeaders headers = new HttpHeaders();
         Optional<Article> optionalArticle = articleRepository.findById(article_id);
