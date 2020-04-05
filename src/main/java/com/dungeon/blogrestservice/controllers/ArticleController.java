@@ -261,6 +261,41 @@ public class ArticleController {
             return ResponseEntity.status(200).body(articleIterator);
     }
 
+
+    @RequestMapping(value = "/articles/{id}/popularity/{op}", method = RequestMethod.PATCH)
+    public ResponseEntity updateLikesOfArticle(@PathVariable long id,
+                                               @PathVariable String op,
+                                               @RequestHeader(value = "token") String token){
+
+
+        Optional<Article> articleToUpdate = articleRepository.findById(id);
+
+        if (articleToUpdate.isPresent()){
+            int currentLikes = 0;
+            currentLikes = articleToUpdate.get().getLikes();
+            int currentLikesDecreased = 0;
+
+            if (op.compareTo("inc") == 0) {
+                articleToUpdate.get().setLikes(currentLikes + 1);
+                articleRepository.save(articleToUpdate.get());
+                return ResponseEntity.status(200).body("");
+            }
+            if (op.compareTo("dec") == 0) {
+
+                if (currentLikes > 0)
+                    currentLikesDecreased = currentLikes -  1;
+
+                articleToUpdate.get().setLikes(currentLikesDecreased);
+                articleRepository.save(articleToUpdate.get());
+                return ResponseEntity.status(200).body("");
+            }
+            else
+                return ResponseEntity.status(400).body("");
+        }
+        else
+            return ResponseEntity.status(400).body("");
+    }
+
     // GET - ziskanie obrazku z clanku
 
 
