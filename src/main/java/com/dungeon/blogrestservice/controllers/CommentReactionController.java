@@ -48,7 +48,7 @@ public class CommentReactionController {
             return ResponseEntity.status(400).body("Missing attribute");
 
         // is there comment, that we are trying react to?
-        comment_instance = commentRepository.findById(article_id);
+        comment_instance = commentRepository.findById(comment_id);
         if (!comment_instance.isPresent())
             return ResponseEntity.status(400).body("Cannot react to non-existing comment");
 

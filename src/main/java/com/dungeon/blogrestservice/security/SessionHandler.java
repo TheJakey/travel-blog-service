@@ -11,8 +11,8 @@ public class SessionHandler {
     private boolean isBloggerLoggedIn;
     private boolean isTokenMatching;
 
-    public SessionHandler(long id, String token, Optional<Session> optionalSession) {
-        this.id = id;
+    public SessionHandler(long blogger_id, String token, Optional<Session> optionalSession) {
+        this.id = blogger_id;
         this.token = token;
 
         if (optionalSession.isPresent()) {

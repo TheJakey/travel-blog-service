@@ -11,6 +11,7 @@ public class ArticleForm {
     private Date published;
     private long blogger_id;
     private int likes;
+    private int numberOfPhotosInGallery;
     private List<Comment> comments;
     // public Tag tag;
 
@@ -52,6 +53,14 @@ public class ArticleForm {
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+
+    public int getNumberOfPhotosInGallery() {
+        return numberOfPhotosInGallery;
+    }
+
+    public void setNumberOfPhotosInGallery(int numberOfPhotosInGallery) {
+        this.numberOfPhotosInGallery = numberOfPhotosInGallery;
     }
 }
 
