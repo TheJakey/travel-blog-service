@@ -1,5 +1,6 @@
 package com.dungeon.blogrestservice.controllers;
 
+import com.dungeon.blogrestservice.forms.FollowerForm;
 import com.dungeon.blogrestservice.models.Blogger;
 import com.dungeon.blogrestservice.models.Follower;
 import com.dungeon.blogrestservice.models.Session;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,12 +36,43 @@ public class FollowerController {
         if (id == 0)
             return ResponseEntity.status(400).body("");
 
-        Iterable<Follower> followersOfBlogger = followerRepository.findAllByBloggerId(id);
+        List<Follower> followersOfBlogger = followerRepository.findAllByBloggerId(id);
 
         if (followersOfBlogger == null)
             return ResponseEntity.status(400).body("Invalid ID - User with such ID doesn't exist");
 
-        return ResponseEntity.status(200).body(followersOfBlogger);
+        List<FollowerForm> folFormList = addFollowerToList(followersOfBlogger);
+        return ResponseEntity.status(200).body(folFormList);
+    }
+
+    public List<FollowerForm> addFollowerToList(List<Follower> followersOfBlogger){
+        FollowerForm followerForm;
+        List<FollowerForm> followerList = new LinkedList<FollowerForm>();
+
+        long followerId = 0;
+        Optional<Blogger> blogger;
+        for(Follower follower : followersOfBlogger) {
+            followerId = follower.getFollowerId();
+            blogger = bloggerRepository.findById(followerId);
+            followerForm = new FollowerForm(followerId, blogger.get().getUsername());
+            followerList.add(followerForm);
+        }
+        return followerList;
+    }
+
+    public List<FollowerForm> addFanToList(List<Follower> followersOfBlogger){
+        FollowerForm followerForm;
+        List<FollowerForm> followerList = new LinkedList<FollowerForm>();
+
+        long followerId = 0;
+        Optional<Blogger> blogger;
+        for(Follower follower : followersOfBlogger) {
+            followerId = follower.getBloggerId();
+            blogger = bloggerRepository.findById(followerId);
+            followerForm = new FollowerForm(followerId, blogger.get().getUsername());
+            followerList.add(followerForm);
+        }
+        return followerList;
     }
 
     @RequestMapping(value = "/bloggers/followers/{id}", method = RequestMethod.GET)
@@ -50,12 +83,13 @@ public class FollowerController {
         if (id == 0)
             return ResponseEntity.status(400).body("");
 
-        Iterable<Follower> bloggersFanclub = followerRepository.findAllByFollowerId(id);
+        List<Follower> bloggersFanclub = followerRepository.findAllByFollowerId(id);
 
         if (bloggersFanclub == null)
             return ResponseEntity.status(400).body("Invalid ID - User with such ID doesn't exist");
 
-        return ResponseEntity.status(200).body(bloggersFanclub);
+        List<FollowerForm> fanclubFormList = addFanToList(bloggersFanclub);
+        return ResponseEntity.status(200).body(fanclubFormList);
     }
 
 
@@ -105,4 +139,41 @@ public class FollowerController {
 
         return ResponseEntity.status(201).body("");
     }
+
+    @RequestMapping(value = "/bloggers/{id}/followers/{follower_id}", method = RequestMethod.DELETE)
+    public ResponseEntity deleteFollower(@PathVariable long id,
+                                         @PathVariable long follower_id,
+                                         @RequestHeader(value = "token") String requestToken) {
+
+        // Authentification
+        Optional<Blogger> optionalBlogger = bloggerRepository.findById(id);
+        Optional<Session> optionalSession = sessionRepository.findByBloggerId(id);
+        Blogger blogger;
+        SessionHandler sessionHandler = new SessionHandler(id, requestToken, optionalSession);
+
+        if(!sessionHandler.isBloggerLoggedIn())
+            return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
+
+        if(!sessionHandler.isTokenMatching())
+            return ResponseEntity.status(403).body("You are forbidden to delete this user");
+
+        if (optionalBlogger.isPresent())
+            blogger = optionalBlogger.get();
+        else
+            return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
+
+        boolean found = false;
+        long rowId;
+        List<Follower> followers = followerRepository.findAllByBloggerId(id);
+        for (Follower follower : followers){
+            if (follower.getFollowerId() == follower_id)
+                found = true;
+                followerRepository.delete(follower);
+        }
+        if (found == true)
+            return ResponseEntity.status(200).body("");
+        else
+            return ResponseEntity.status(400).body("You do not follow that blogger.");
+    }
+
 }
