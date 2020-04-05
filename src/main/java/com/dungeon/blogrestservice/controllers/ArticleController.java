@@ -125,25 +125,27 @@ public class ArticleController {
             Optional<Tag> optionalTag;
             Tag tag;
             Tag new_tag;
-            for (String tagName : articleForm.getSelected_tags()) {
-                if (tagName.isEmpty())
-                    continue;
 
-                optionalTag = tagRepository.findByTag(tagName);
+            if (articleForm.getSelected_tags() != null) {
+                for (String tagName : articleForm.getSelected_tags()) {
+                    if (tagName.isEmpty())
+                        continue;
 
-                if (optionalTag.isPresent()) {
-                    articleTags.add(new ArticleTag(articalId, optionalTag.get().getId()));
+                    optionalTag = tagRepository.findByTag(tagName);
+
+                    if (optionalTag.isPresent()) {
+                        articleTags.add(new ArticleTag(articalId, optionalTag.get().getId()));
+                    } else {
+                        tag = new Tag(tagName);
+                        new_tag = tagRepository.save(tag);
+
+                        articleTags.add(new ArticleTag(articalId, new_tag.getId()));
+                    }
                 }
-                else {
-                    tag = new Tag(tagName);
-                    new_tag = tagRepository.save(tag);
 
-                    articleTags.add(new ArticleTag(articalId, new_tag.getId()));
-                }
+                if (articleTags.size() > 0)
+                    articleTagRepository.saveAll(articleTags);
             }
-
-            if (articleTags.size() > 0)
-                articleTagRepository.saveAll(articleTags);
 
             return ResponseEntity.status(201).body(articalId);
         } else
@@ -264,7 +266,7 @@ public class ArticleController {
                 else
                     return ResponseEntity.status(400).body("Invalid Id");
             }
-            
+
 
             // Articles can be sorted by the categoryType given in request: popular, date , title, tag
             if (categoryType != null) {

@@ -52,7 +52,7 @@ public class SessionController {
             newSession.setToken(newToken);
 
             sessionRepository.save(newSession);
-            return ResponseEntity.status(200).header("token", newToken).body(blogger.getId());
+            return ResponseEntity.status(201).header("token", newToken).body(blogger.getId());
         }
     }
 
