@@ -153,7 +153,7 @@ public class BloggerController {
         SessionHandler sessionHandler = new SessionHandler(bloggerId, requestToken, optionalSession);
 
         if(!sessionHandler.isBloggerLoggedIn())
-            return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
+            return ResponseEntity.status(401).body("Invalid id - blogger not logged-in");
 
         if(!sessionHandler.isTokenMatching())
             return ResponseEntity.status(403).body("You are forbidden to change this photo");

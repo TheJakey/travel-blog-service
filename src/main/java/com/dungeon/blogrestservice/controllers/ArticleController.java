@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.html.Option;
 import java.util.*;
 
 @RestController
@@ -243,18 +244,27 @@ public class ArticleController {
                                          @RequestParam(required = false, value = "first") Integer first_article,
                                          @RequestParam(required = false, value = "limit") Integer limit,
                                          @RequestParam(required = false, value = "order") Character order,
-                                         @RequestParam(required = false, value = "tagname") String tagname) {
-
+                                         @RequestParam(required = false, value = "tagname") String tagname
+    ) {
+        Optional<Article> optionalArticle;
         Sort sort = null;
+
         if (id == null && categoryType == null && first_article == null && limit == null && order == null){
             sort = Sort.by("published").descending();
             first_article = 0;
             limit = 10;
         }
         else {
+            // return article if Id is set and ignore all the other parameters
+            if (id != null) {
+                optionalArticle = articleRepository.findById(id);
 
-            if (id != null)
-                return ResponseEntity.status(200).body(articleRepository.findById(id));
+                if (optionalArticle.isPresent())
+                    return ResponseEntity.status(200).body(articleRepository.findById(id));
+                else
+                    return ResponseEntity.status(400).body("Invalid Id");
+            }
+            
 
             // Articles can be sorted by the categoryType given in request: popular, date , title, tag
             if (categoryType != null) {
