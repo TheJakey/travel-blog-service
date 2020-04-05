@@ -46,8 +46,8 @@ public class SessionController {
 
             newSession.setBloggerId(blogger.getId());
 
-            String newToken = "generated_token";                // TODO: Remove this before submit - TEST ONLY
-//            String newToken = generateToken();                // TODO: Remove this before submit - TEST ONLY
+//            String newToken = "generated_token";                // TODO: Remove this before submit - TEST ONLY
+            String newToken = generateToken();                // TODO: Remove this before submit - TEST ONLY
 
             newSession.setToken(newToken);
 

@@ -382,10 +382,4 @@ public class ArticleController {
         else
             return ResponseEntity.status(400).body("");
     }
-
-    // GET - ziskanie obrazku z clanku
-
-
-    // PUT - zmena obrazku v clanku
-
 }
