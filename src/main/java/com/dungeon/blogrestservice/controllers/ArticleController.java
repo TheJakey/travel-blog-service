@@ -39,6 +39,9 @@ public class ArticleController {
     @Autowired
     ArticlePhotoRepository articlePhotoRepository;
 
+    @Autowired
+    ArticleTagRepository articleTagRepository;
+
 
     // GET - ziskanie udajov o clanku
     @RequestMapping(value = "/articles/full/{id}", method = RequestMethod.GET)
@@ -104,6 +107,11 @@ public class ArticleController {
 
             Article article;
             article = new Article(id, title, articleText, published, likes);
+
+            //add tags
+
+
+
 
             Article just_created_article = articleRepository.save(article);
             return ResponseEntity.status(201).body(just_created_article.getId());

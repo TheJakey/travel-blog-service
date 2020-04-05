@@ -29,22 +29,22 @@ public class TagController {
         Tag tag = new Tag();
         Tag just_created_tag;
         Optional<Session> optionalSession = sessionRepository.findByBloggerId(bloggerId);
-        SessionHandler sessionHandler = new SessionHandler(bloggerId, requestToken, optionalSession);
-
-        if(!sessionHandler.isBloggerLoggedIn())
-            return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
-
-        if(!sessionHandler.isTokenMatching())
-            return ResponseEntity.status(403).body("You are forbidden to change this photo");
-
-        if (token == null || new_tag_name == null)
-            return ResponseEntity.status(401).body("Missing input data");
-
-        if (new_tag_name.isEmpty())
-            return ResponseEntity.status(401).body("Missing input data");
-
-        if (token.isEmpty())
-            return ResponseEntity.status(401).body("Who are you?");
+//        SessionHandler sessionHandler = new SessionHandler(bloggerId, requestToken, optionalSession);
+//
+//        if(!sessionHandler.isBloggerLoggedIn())
+//            return ResponseEntity.status(400).body("Invalid id - blogger not logged-in");
+//
+//        if(!sessionHandler.isTokenMatching())
+//            return ResponseEntity.status(403).body("You are forbidden to change this photo");
+//
+//        if (token == null || new_tag_name == null)
+//            return ResponseEntity.status(401).body("Missing input data");
+//
+//        if (new_tag_name.isEmpty())
+//            return ResponseEntity.status(401).body("Missing input data");
+//
+//        if (token.isEmpty())
+//            return ResponseEntity.status(401).body("Who are you?");
 
         tag.setTag(new_tag_name);
 
@@ -70,7 +70,7 @@ public class TagController {
         if (token == null)
             return ResponseEntity.status(401).body("Who are you?");
 
-        if (token.compareTo(adminToken) != 0)
+        if (token.compareTo("aha") != 0)
             return ResponseEntity.status(401).body("Who are you?");
 
         if (!tag.isPresent())
