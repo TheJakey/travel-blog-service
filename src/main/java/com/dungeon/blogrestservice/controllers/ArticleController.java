@@ -242,7 +242,8 @@ public class ArticleController {
                                          @RequestParam(required = false, value = "type") String categoryType,
                                          @RequestParam(required = false, value = "first") Integer first_article,
                                          @RequestParam(required = false, value = "limit") Integer limit,
-                                         @RequestParam(required = false, value = "order") Character order) {
+                                         @RequestParam(required = false, value = "order") Character order,
+                                         @RequestParam(required = false, value = "tagname") String tagname) {
 
         Sort sort = null;
         if (id == null && categoryType == null && first_article == null && limit == null && order == null){
@@ -255,7 +256,7 @@ public class ArticleController {
             if (id != null)
                 return ResponseEntity.status(200).body(articleRepository.findById(id));
 
-            // Articles can be sorted by the categoryType given in request: popular, date , title
+            // Articles can be sorted by the categoryType given in request: popular, date , title, tag
             if (categoryType != null) {
 
                 if (categoryType.compareTo("popular") == 0)
@@ -264,6 +265,31 @@ public class ArticleController {
                     sort = Sort.by("published");
                 else if (categoryType.compareTo("articletitle") == 0)
                     sort = Sort.by("title");
+                else if ((categoryType.compareTo("tag")) == 0){
+                    if (tagname == null)
+                        return ResponseEntity.status(400).body("");
+                    else{
+                        Optional<Tag> tag = tagRepository.findByTag(tagname);
+                        if (tag.isPresent()){
+                            long tag_id = tag.get().getId();
+                            List<ArticleTag> articlesByTag = articleTagRepository.findAllByTagId(tag_id);
+                            List<ArticleForm> articleList = new LinkedList<ArticleForm>();
+                            ArticleForm articleForm = new ArticleForm();
+
+                            if (!articlesByTag.isEmpty()){
+                                for (ArticleTag articleTag : articlesByTag) {
+                                    Optional<Article> article = articleRepository.findById(articleTag.getArticleId());
+                                    if (article.isPresent()) {
+                                        articleForm = articleToArticleForm(article.get());
+                                        articleList.add(articleForm);
+                                    }
+                                }
+                                return ResponseEntity.status(200).body(articleList);
+                            }
+                        }
+                        return ResponseEntity.status(400).body("");
+                    }
+                }
                 else
                     return ResponseEntity.status(400).body("");
             } else
@@ -297,6 +323,29 @@ public class ArticleController {
             return ResponseEntity.status(404).body("");
         else
             return ResponseEntity.status(200).body(articleIterator);
+    }
+
+    public ArticleForm articleToArticleForm(Article article){
+        ArticleForm articleForm = new ArticleForm();
+        List<ArticleTag> articleTags;
+        List<Tag> tags = new LinkedList<>();
+
+        articleForm.setBlogger_id(article.getBloggerId());
+        articleForm.setArticle_text(article.getArticleText());
+        articleForm.setLikes(article.getLikes());
+        articleForm.setPublished(article.getPublished());
+        articleForm.setTitle(article.getTitle());
+        articleForm.setComments(getCommentsFromDB(article.getId()));
+        articleForm.setNumberOfPhotosInGallery(articlePhotoRepository.findAllByArticleId(article.getId()).size());
+
+        // get tags from db
+        articleTags = articleTagRepository.findAllByArticleId(article.getId());
+        for (ArticleTag articleTag : articleTags) {
+            tags.add(tagRepository.findById(articleTag.getTagId()).get());
+        }
+        articleForm.setTags(tags);
+
+        return articleForm;
     }
 
 

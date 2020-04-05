@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ArticleTagRepository extends CrudRepository<ArticleTag, Long> {
     List<ArticleTag> findAllByArticleId(long articleId);
+    List<ArticleTag> findAllByTagId(long tagId);
 }
