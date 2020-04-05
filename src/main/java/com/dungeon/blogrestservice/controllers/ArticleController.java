@@ -1,10 +1,7 @@
 package com.dungeon.blogrestservice.controllers;
 
 import com.dungeon.blogrestservice.forms.ArticleForm;
-import com.dungeon.blogrestservice.models.Article;
-import com.dungeon.blogrestservice.models.Blogger;
-import com.dungeon.blogrestservice.models.Comment;
-import com.dungeon.blogrestservice.models.Session;
+import com.dungeon.blogrestservice.models.*;
 import com.dungeon.blogrestservice.repositories.*;
 import com.dungeon.blogrestservice.security.SessionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 
 @RestController
 public class ArticleController {
@@ -40,6 +35,9 @@ public class ArticleController {
     ArticlePhotoRepository articlePhotoRepository;
 
     @Autowired
+    TagRepository tagRepository;
+
+    @Autowired
     ArticleTagRepository articleTagRepository;
 
 
@@ -49,6 +47,8 @@ public class ArticleController {
         Optional<Article> optionalArticle = articleRepository.findById(id);
         Article article;
         ArticleForm articleForm = new ArticleForm();
+        List<ArticleTag> articleTags;
+        List<Tag> tags = new LinkedList<>();
 
         if (optionalArticle.isPresent()) {
             article = optionalArticle.get();
@@ -60,6 +60,13 @@ public class ArticleController {
             articleForm.setTitle(article.getTitle());
             articleForm.setComments(getCommentsFromDB(id));
             articleForm.setNumberOfPhotosInGallery(articlePhotoRepository.findAllByArticleId(id).size());
+
+            // get tags from db
+            articleTags = articleTagRepository.findAllByArticleId(id);
+            for (ArticleTag articleTag : articleTags) {
+                tags.add(tagRepository.findById(articleTag.getTagId()).get());
+            }
+            articleForm.setTags(tags);
 
             return ResponseEntity.status(200).body(articleForm);
         }
@@ -88,6 +95,8 @@ public class ArticleController {
         Optional<Blogger> optionalBlogger = bloggerRepository.findById(id);
         Session session;
         Blogger blogger;
+        List<ArticleTag> articleTags = new LinkedList<ArticleTag>();
+        long articalId;
 
         SessionHandler sessionHandler = new SessionHandler(id, Token, optionalSession);
 
@@ -108,13 +117,34 @@ public class ArticleController {
             Article article;
             article = new Article(id, title, articleText, published, likes);
 
-            //add tags
-
-
-
-
             Article just_created_article = articleRepository.save(article);
-            return ResponseEntity.status(201).body(just_created_article.getId());
+            articalId = just_created_article.getId();
+
+            // add tags
+            Optional<Tag> optionalTag;
+            Tag tag;
+            Tag new_tag;
+            for (String tagName : articleForm.getSelected_tags()) {
+                if (tagName.isEmpty())
+                    continue;
+
+                optionalTag = tagRepository.findByTag(tagName);
+
+                if (optionalTag.isPresent()) {
+                    articleTags.add(new ArticleTag(articalId, optionalTag.get().getId()));
+                }
+                else {
+                    tag = new Tag(tagName);
+                    new_tag = tagRepository.save(tag);
+
+                    articleTags.add(new ArticleTag(articalId, new_tag.getId()));
+                }
+            }
+
+            if (articleTags.size() > 0)
+                articleTagRepository.saveAll(articleTags);
+
+            return ResponseEntity.status(201).body(articalId);
         } else
             return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
     }

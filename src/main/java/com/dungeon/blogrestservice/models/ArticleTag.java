@@ -14,28 +14,16 @@ public class ArticleTag {
     private long id;
 
     @Column(name = "article_id")
-    private String articleId;
+    private long articleId;
 
-    @OneToOne
-    @JoinColumn(name = "id", referencedColumnName = "tag_id")
-    private Tag tag;
+    @Column(name = "tag_id")
+    private long tagId;
 
     public ArticleTag() {}
 
-    public String getArticleId() {
-        return articleId;
-    }
-
-    public void setArticleId(String articleId) {
+    public ArticleTag(long articleId, long tagId) {
         this.articleId = articleId;
-    }
-
-    public Tag getTag() {
-        return tag;
-    }
-
-    public void setTag(Tag tag) {
-        this.tag = tag;
+        this.tagId = tagId;
     }
 
     public long getId() {
@@ -44,5 +32,21 @@ public class ArticleTag {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public long getArticleId() {
+        return articleId;
+    }
+
+    public void setArticleId(long articleId) {
+        this.articleId = articleId;
+    }
+
+    public long getTagId() {
+        return tagId;
+    }
+
+    public void setTagId(long tagId) {
+        this.tagId = tagId;
     }
 }

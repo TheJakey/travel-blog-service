@@ -2,10 +2,12 @@ package com.dungeon.blogrestservice.forms;
 
 import com.dungeon.blogrestservice.models.Comment;
 import com.dungeon.blogrestservice.models.Tag;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Date;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ArticleForm {
     private String title;
     private String article_text;
@@ -14,6 +16,7 @@ public class ArticleForm {
     private int likes;
     private int numberOfPhotosInGallery;
     private List<Tag> tags;
+    private List<String> selected_tags;
     private List<Comment> comments;
 
     public String getTitle() { return title; }
@@ -70,6 +73,14 @@ public class ArticleForm {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    public List<String> getSelected_tags() {
+        return selected_tags;
+    }
+
+    public void setSelected_tags(List<String> selected_tags) {
+        this.selected_tags = selected_tags;
     }
 }
 

@@ -18,6 +18,10 @@ public class Tag {
 
     public Tag() {}
 
+    public Tag(String tag_name) {
+        this.tag = tag_name;
+    }
+
     public long getId() {
         return id;
     }
