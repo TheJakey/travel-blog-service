@@ -30,7 +30,25 @@ public class ArticlePhotoController {
     @Autowired
     ArticleRepository articleRepository;
 
-    @RequestMapping(value = "/articles/{article_id}/photos/{photo_position}", method = RequestMethod.GET)
+    //
+    //
+    //
+    //
+    // TODO: Delete all by article ID
+    // TODO: Delete?
+    //
+    //
+    //
+    //
+    @RequestMapping(value = "/articles/{article_id}/photos", method = RequestMethod.DELETE)
+    public ResponseEntity getPhotos(@PathVariable long article_id) {
+        articlePhotoRepository.deleteAllByArticleId(article_id);
+
+        return ResponseEntity.status(200).body("");
+    }
+
+
+        @RequestMapping(value = "/articles/{article_id}/photos/{photo_position}", method = RequestMethod.GET)
     public ResponseEntity getPhotos(@PathVariable long article_id, @PathVariable int photo_position) {
         HttpHeaders headers = new HttpHeaders();
         Optional<Article> optionalArticle = articleRepository.findById(article_id);
@@ -39,11 +57,11 @@ public class ArticlePhotoController {
         byte[] photo;
 
         if(!optionalArticle.isPresent())
-            return ResponseEntity.status(400).body("Non-existing id");
+            return ResponseEntity.status(400).body("Non-existing article");
 
 //        headers.setCacheControl(CacheControl.noCache().getHeaderValue());
 
-        if (numberOfPhotos != 0 && numberOfPhotos > photo_position) {
+        if (numberOfPhotos != 0 && numberOfPhotos > photo_position && photo_position >= 0) {
             photo = articlePhotos.get(photo_position).getPhoto();
             return ResponseEntity.status(200).contentType(MediaType.parseMediaType("image/jpeg")).cacheControl(CacheControl.noCache()).body(photo);
         }
@@ -58,9 +76,8 @@ public class ArticlePhotoController {
             @RequestHeader(value = "token") String token,
             @RequestBody byte[] photo
     ) {
-//        long article_id = 3;
-//        long blogger_id = 5;
         Optional<Session> optionalSession = sessionRepository.findByBloggerId(blogger_id);
+        Optional<Article> optionalArticle = articleRepository.findById(article_id);
         Session session;
         SessionHandler sessionHandler = new SessionHandler(blogger_id, token, optionalSession);
         ArticlePhoto articlePhoto = new ArticlePhoto();
@@ -71,16 +88,13 @@ public class ArticlePhotoController {
         if(!sessionHandler.isTokenMatching())
             return ResponseEntity.status(403).body("You are forbidden to upload this photo");
 
+        if(!optionalArticle.isPresent())
+            return ResponseEntity.status(400).body("Non-existing article");
+
         articlePhoto.setArticleId(article_id);
         articlePhoto.setPhoto(photo);
 
         articlePhotoRepository.save(articlePhoto);
-
-//        if (optionalBlogger.isPresent())
-//            blogger = optionalBlogger.get();
-//        else
-//            return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
-
 
         return ResponseEntity.status(201).body("");
     }

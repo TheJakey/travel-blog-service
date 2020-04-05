@@ -26,7 +26,7 @@ public class Comment {
     @Column(name = "published")
     private Date published;
 
-    @OneToMany(mappedBy = "commentId")
+    @OneToMany(mappedBy = "commentId", cascade = CascadeType.ALL)
     private List<CommentRection> commentRection;
 
     public Comment(){}

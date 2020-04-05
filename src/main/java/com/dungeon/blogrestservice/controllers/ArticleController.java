@@ -188,7 +188,10 @@ public class ArticleController {
             else
                 return ResponseEntity.status(400).body("Invalid id - blogger is logged in, but not registered");
 
+            articlePhotoRepository.deleteAllByArticleId(id);
+            commentRepository.deleteAllByArticleId(id);
             articleRepository.delete(articleToDelete.get());
+
             return ResponseEntity.status(200).body("Article was successfully deleted.");
         }
     }
