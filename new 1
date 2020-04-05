@@ -1,0 +1,62 @@
+Testovanie
+Vytvorenie bloggerov
+2x rovnake username - OK
+tabulator treba vyescapeovat, ak ho cheme ulozit do DB
+treba zabezpecit pouzitie uvodzoviek v about me - qoute component?
+ak zada viac charov, ako je dovolene, vyhodi 500 
+posielanie null ako username, password, email - 500
+atributy akceptuju “ “
+fotky - vyskusat podporovane tipy obrazkov
+
+POST
+http://localhost:8080/bloggers
+
+{
+	"username": "Andrejko",
+	"about_me": "Som auto",
+	"password": "004394960a0fdfae6daaab851ccf3599",
+	"email": "Mame@mail.sk"
+}
+{
+	"username": "",
+	"about_me": "viac ako 4000:It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).",
+	"password": "žťýádfcghjncvbnm",
+	"email": "mrkvička7z.90&98@mail.sk"
+}
+{
+	"username": “viac ako 255%&special_char    -03/kflcdPFORP System.out.println("jjj");Chuck, a soldier, was made aware that he would be taking the annual urine test to make sure he was staying off drugs.Chuck, a soldier, was made aware that he would be taking the annual urine test to make sure he was staying off drugs.",
+	"about_me": "wertyuio",
+	"password": "23456789lokiuytr567898765thg",
+	"email": "wertyuio@mail.sk"
+}
+
+{
+	"username": "viac ako 255%&special_char    -03/kflcdPFORP rfgbhn09876543ertyuiop['mnb																								;Chuck, a soldier, was made aware that he would be taking the annual urine test to make sure he waine test to make sure he was staying off drugs.",
+	"about_me": "wertyuio",
+	"password": "23456789lokiuytr567898765thg",
+	"email": "wertyuio@mail.sk"
+}
+
+{
+	"username": "olijuhygtf",
+	"about_me": "wertyu'koijhg' io",
+	"password": "viac ako 25kjuygtfrdcvbnkmlijuytfgvbhnml,kjhgfdfghjklkjnbhvcxcvbnm,nb5%&special_char   make sure he waine test to make sure he was staying off drugs789lokiuytr567898765thg",
+	"email": "wertyuio@mail.sk"
+}
+{
+	"username": "nnnntf",
+	"about_me": "wertyu”You only live once”koijhg' io",
+	"password": "viac ako 25kjuygtfrdcvbnkmlijuytfgvbhnml,kjhgfdfghjklkjnbhvcxcvbnm,nb5%&special_char   make sure he waine test to make sure he was staying off drugs789lokiuytr567898765thg",
+	"email": "wertyuio@mail.sk"
+}
+
+Získanie bloggerov
+GET
+http://localhost:8080/bloggers/1
+http://localhost:8080/bloggers/54
+http://localhost:8080/bloggers/
+http://localhost:8080/bloggers/0
+
+
+
+
